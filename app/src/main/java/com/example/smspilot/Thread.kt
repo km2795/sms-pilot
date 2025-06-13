@@ -1,0 +1,122 @@
+package com.example.smspilot
+
+
+/**
+ * List of Messages with same address.
+ */
+class Thread(
+  private var messageList: MutableList<Message>? = mutableListOf<Message>(),
+  private var address: String = "",
+  private var bodyThumbnail: String = "",
+  private var showDate: Long = 0) {
+
+  constructor(message: Message, address: String) : this() {
+    this.messageList?.add(message)
+    this.address = address
+    this.updateThumbnailData(message)
+  }
+
+  /**
+   * To initialize the messageList with a
+   * particular list of messages.
+   *
+   * @param messageList Messages to initialize the Thread with.
+   */
+  fun initializeList(messageList: MutableList<Message>) {
+    this.messageList = messageList
+  }
+
+  /**
+   * Returns the messages in date sorted (descending) format.
+   *
+   * @return List of messages in date sorted (descending) format.
+   */
+  fun getDateSortedMessageList(): List<Message> {
+    return this.messageList?.sortedByDescending { it.getDate() } ?: emptyList()
+  }
+
+  fun getThreadSize(): Int {
+    return this.messageList?.size ?: 0
+  }
+
+  /**
+   * Create message list from a list of messages.
+   *
+   * @param message Message to add.
+   */
+  fun addMessage(message: Message) {
+    this.messageList?.add(message)
+    this.updateThumbnailData(message)
+  }
+
+  /**
+   * Address of the thread.
+   *
+   * @return Address of the thread.
+   */
+  fun getAddress(): String {
+    return this.address
+  }
+
+  /**
+   * Set address of the thread.
+   *
+   * @param address Address of the thread.
+   */
+  fun setAddress(address: String) {
+    this.address = address
+  }
+
+  /**
+   * Return the message to show as thumbnail or peak view.
+   *
+   * @return Message to show as thumbnail.
+   */
+  fun getBodyThumbnail(): String {
+    return this.bodyThumbnail
+  }
+
+  /**
+   * Updates the message thumbnail and date to be
+   * shown in the peak view.
+   *
+   * @param message Message as reference.
+   */
+  private fun updateThumbnailData(message: Message) {
+    if (message.getDate() > this.showDate) {
+      this.updateShowDate(message.getDate())
+      this.updateBodyThumbnail(message.getBody())
+    }
+  }
+
+  /**
+   * Updates the message to show as thumbnail or peak view
+   * to the contents of the thread (the latest message).
+   *
+   * @param message Message to show as thumbnail.
+   */
+  fun updateBodyThumbnail(message: String) {
+    this.bodyThumbnail = message
+  }
+
+  /**
+   * Return the date to show in the thread's view.
+   * (latest message date).
+   *
+   * @return Date to show in the thread's view.
+   */
+  fun getShowDate(): Long {
+    return this.showDate
+  }
+
+  /**
+   * Updates the latest show date (most recent message received
+   * or entered in the phone)
+   *
+   * @param date Date of the latest message.
+   */
+  fun updateShowDate(date: Long) {
+   this.showDate = date
+  }
+
+}
