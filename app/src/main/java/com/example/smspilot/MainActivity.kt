@@ -60,6 +60,16 @@ class MainActivity : ComponentActivity() {
     val detectorModel : MappedByteBuffer? =
       loadModelFile(this, "sms_spam_detector_model.tflite")
 
+    val vectorizer = HashingVectorizer(nFeatures = 200) // Or your desired number of features
+    val myText = """
+      This is the first sentence.
+      Here is another sentence for processing.
+      Word2Vec is interesting.
+    """.trimIndent() // Example multi-line string
+
+    val wordVector = vectorizer.transform(listOf(myText))
+    println("Word Vector: ${wordVector.contentToString()}")
+
     setContent {
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         SmsScreen(

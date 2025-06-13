@@ -50,7 +50,7 @@ fun runInference(model: MappedByteBuffer?, inputData: String): String {
   val vectorizer = HashingVectorizer(200)
 
   // Transform the input data into a vector.
-  val vectorizedData: DoubleArray = vectorizer.transform(cleaned)
+  val vectorizedData: DoubleArray = vectorizer.fit(listOf(cleaned))
 
   // Convert the vectorized data into a feed-able format for the model.
   val vectorizedFloatData = vectorizedData.map { it.toFloat() }.toFloatArray()
@@ -67,14 +67,13 @@ fun runInference(model: MappedByteBuffer?, inputData: String): String {
 
     // Process the output
     val verdict: Float = outputTensor[0][0]
-    return "Verdict: ${verdict}"
 
-//    // Return the verdict from the model.
-//    return if (verdict > 0.5) {
-//      "Verdict: Spam"
-//    } else {
-//      "Verdict: Not Spam"
-//    }
+    // Return the verdict from the model.
+    return if (verdict > 0.5) {
+      "Verdict: Spam"
+    } else {
+      "Verdict: Not Spam"
+    }
   } catch (e: Exception) {
     Log.i("ModelError: ", e.printStackTrace().toString())
 
