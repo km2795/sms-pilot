@@ -19,7 +19,7 @@ class Message (
   /**
    * Set ID of the message.
    */
-  fun setId(id: Long) {
+  private fun setId(id: Long) {
     this.id = id
   }
 
@@ -33,7 +33,7 @@ class Message (
   /**
    * Set address of the sender.
    */
-  fun setAddress(address: String) {
+  private fun setAddress(address: String) {
     this.address = address
   }
 
@@ -47,7 +47,7 @@ class Message (
   /**
    * Set body of the message.
    */
-  fun setBody(body: String) {
+  private fun setBody(body: String) {
     this.body = body
   }
 

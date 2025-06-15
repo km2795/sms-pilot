@@ -2,6 +2,7 @@ package com.example.smspilot
 
 import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
 import android.provider.Telephony
 import android.database.Cursor
 import java.nio.MappedByteBuffer
@@ -13,11 +14,67 @@ import java.nio.MappedByteBuffer
 class SmsPilot {
   private var smsList = SmsList()
 
+  /**
+   * Get the SMS read permission from the data cache.
+   *
+   * @param context Context of the application.
+   * @return SMS read permission.
+   */
+  fun checkSmsReadPermission(context: Context): Boolean {
+    return DataStore().getSmsReadPermission(context)
+  }
+
+  /**
+   * Update the SMS read permission in the data cache.
+   *
+   * @param permission SMS read permission.
+   * @param context Context of the application.
+   */
+  fun UpdateSmsReadPermission(context: Context, permission: Boolean) {
+    DataStore().updateSmsReadPermission(context, permission)
+  }
+
   fun setupDetector(activity: Activity): MappedByteBuffer? {
     return loadModelFile(activity, "sms_spam_detector_model.tflite")
   }
 
-  fun fetchSmsMessages(contentResolver: ContentResolver): List<Thread> {
+  /**
+   * Load the SMS list.
+   *
+   * @param contentResolver Content resolver.
+   * @return SMS list.
+   */
+  fun getSmsList(contentResolver: ContentResolver) : MutableList<Message> {
+    return fetchSms(contentResolver)
+  }
+
+  /**
+   * Unload the SMS list.
+   */
+  fun unLoadSmsList() {
+    SMS_LIST.SMS_LIST.clear()
+    SMS_LIST.SMS_LIST_MAP.clear()
+  }
+
+  /**
+   * Wrapper around fetchSmsMessages.
+   *
+   * @param contentResolver Content resolver.
+   * @return SMS list.
+   */
+  private fun fetchSms(contentResolver: ContentResolver): MutableList<Message> {
+    return fetchSmsMessages(contentResolver).toMutableList()
+  }
+
+  /**
+   * Returns the list of all the SMSs in the inbox ('inbox').
+   *
+   * @param contentResolver Content resolver.
+   * @return List of messages.
+   */
+  private fun fetchSmsMessages(contentResolver: ContentResolver): List<Message> {
+    val smsList: MutableList<Message> = mutableListOf<Message>()
+
     val uri = Telephony.Sms.Inbox.CONTENT_URI
 
     // Columns to retrieve
@@ -60,11 +117,24 @@ class SmsPilot {
           // Basic null checks, especially for address which can sometimes be null
           if (address != null && body != null) {
             // Add the message.
-            smsList.addMessage(Message(id, address, body, date))
+            smsList.add(Message(id, address, body, date))
           }
 
         } while (it.moveToNext())
       }
+    }
+    return smsList
+  }
+
+  /**
+   * Convert the list of messages into a List of Threads.
+   *
+   * @param messageList List of messages.
+   * @return List of threads.
+   */
+  fun formAndGetThreadList(messageList: MutableList<Message>): List<Thread> {
+    for (message in messageList) {
+      smsList.addMessage(message)
     }
     return smsList.getThreadList()
   }

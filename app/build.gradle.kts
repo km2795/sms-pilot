@@ -63,3 +63,8 @@ android {
     debugImplementation(libs.androidx.ui.test.manifest)
   }
 }
+dependencies {
+  implementation(libs.androidx.appcompat)
+  implementation(libs.material)
+  implementation(libs.androidx.activity)
+}

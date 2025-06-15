@@ -5,7 +5,8 @@ package com.example.smspilot
  * List of Messages with same address.
  */
 class Thread(
-  private var messageList: MutableList<Message>? = mutableListOf<Message>(),
+  private var messageList: MutableSet<Message>? = mutableSetOf<Message>(),
+  private var id: Long = 0,
   private var address: String = "",
   private var bodyThumbnail: String = "",
   private var showDate: Long = 0) {
@@ -13,17 +14,12 @@ class Thread(
   constructor(message: Message, address: String) : this() {
     this.messageList?.add(message)
     this.address = address
+    this.id = message.getId()
     this.updateThumbnailData(message)
   }
 
-  /**
-   * To initialize the messageList with a
-   * particular list of messages.
-   *
-   * @param messageList Messages to initialize the Thread with.
-   */
-  fun initializeList(messageList: MutableList<Message>) {
-    this.messageList = messageList
+  fun getThreadId(): Long {
+    return this.id
   }
 
   /**
@@ -31,8 +27,17 @@ class Thread(
    *
    * @return List of messages in date sorted (descending) format.
    */
-  fun getDateSortedMessageList(): List<Message> {
-    return this.messageList?.sortedByDescending { it.getDate() } ?: emptyList()
+  fun getMessageListDescending(): MutableList<Message> {
+    return this.messageList?.sortedByDescending { it.getDate() }?.toMutableList() ?: mutableListOf()
+  }
+
+  /**
+   * Returns the messages in date sorted (ascending) format.
+   *
+   * @return List of messages in date sorted (ascending) format.
+   */
+  fun getMessageListAscending(): MutableList<Message> {
+    return this.messageList?.sortedBy { it.getDate() }?.toMutableList() ?: mutableListOf()
   }
 
   fun getThreadSize(): Int {
@@ -46,6 +51,15 @@ class Thread(
    */
   fun addMessage(message: Message) {
     this.messageList?.add(message)
+
+    /*
+     * This will be helpful when an empty Thread is
+     * created and a new Message was pushed in this
+     * thread. The address parameter would not have
+     * updated.
+     */
+    this.address = message.getAddress()
+    this.id = message.getId()
     this.updateThumbnailData(message)
   }
 
@@ -63,7 +77,7 @@ class Thread(
    *
    * @param address Address of the thread.
    */
-  fun setAddress(address: String) {
+  private fun setAddress(address: String) {
     this.address = address
   }
 
@@ -95,7 +109,7 @@ class Thread(
    *
    * @param message Message to show as thumbnail.
    */
-  fun updateBodyThumbnail(message: String) {
+  private fun updateBodyThumbnail(message: String) {
     this.bodyThumbnail = message
   }
 
@@ -115,7 +129,7 @@ class Thread(
    *
    * @param date Date of the latest message.
    */
-  fun updateShowDate(date: Long) {
+  private fun updateShowDate(date: Long) {
    this.showDate = date
   }
 
