@@ -18,11 +18,11 @@
         android:theme="@style/Theme.SMSPilot"
         tools:targetApi="31">
         <activity
-            android:name=".ThreadActivity"
+            android:name="sr79.works.smspilot.ThreadActivity"
             android:exported="false"
             android:theme="@style/Theme.ThreadActivityTheme" />
         <activity
-            android:name=".MainActivity"
+            android:name="sr79.works.smspilot.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.SMSPilot">
             <intent-filter>

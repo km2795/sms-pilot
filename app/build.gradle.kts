@@ -1,7 +1,3 @@
-import com.android.build.api.dsl.AndroidResources
-import org.gradle.kotlin.dsl.the
-import org.jetbrains.kotlin.cli.js.klib.TopDownAnalyzerFacadeForJSIR.platform
-
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
@@ -9,7 +5,7 @@ plugins {
 }
 
 android {
-  namespace = "com.example.smspilot"
+  namespace = "sr79.works.smspilot"
   compileSdk = 35
 
   androidResources {
@@ -17,7 +13,7 @@ android {
   }
   
   defaultConfig {
-    applicationId = "com.example.smspilot"
+    applicationId = "sr79.works.smspilot"
     minSdk = 24
     targetSdk = 35
     versionCode = 1
@@ -52,7 +48,7 @@ android {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("org.tensorflow:tensorflow-lite:2.9.0")
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("com.github.rholder:snowball-stemmer:1.3.0.581.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
