@@ -47,9 +47,12 @@ class ThreadActivity : AppCompatActivity() {
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
         if (sms != null) {
+          // Top Bar Title changes to Address of the Message.
+          var topBarName = sms.getAddress()
 
           // Load the message list.
           MainScreen(
+            topBarName,
             sms.getMessageListAscending(),
             modifier = Modifier.padding(innerPadding)
           )
@@ -62,12 +65,13 @@ class ThreadActivity : AppCompatActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
+  topBarName: String,
   smsList: List<Message>,
   modifier: Modifier = Modifier) {
 
   Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
     TopAppBar(
-      title = { Text(APP_TITLE) },
+      title = { Text(topBarName) },
       navigationIcon = {},
       actions = {
         IconButton(onClick = {}) {
