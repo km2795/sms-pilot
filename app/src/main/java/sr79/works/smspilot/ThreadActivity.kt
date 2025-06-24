@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -45,7 +44,6 @@ class ThreadActivity : AppCompatActivity() {
     val sms = SmsList().getThread(threadId!!)
 
     setContent {
-      Text("HELLO", modifier = Modifier.size(50.dp))
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
         if (sms != null) {
