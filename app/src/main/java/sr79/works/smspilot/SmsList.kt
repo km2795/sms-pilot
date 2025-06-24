@@ -12,7 +12,6 @@ object SMS_LIST {
  * Main SMS list.
  */
 class SmsList {
-
   /**
    * Add message to a thread in the list.
    *
@@ -58,5 +57,13 @@ class SmsList {
       .toList()
       .sortedByDescending { it.getShowDate() }
       .toMutableList()
+  }
+
+  /**
+   * Clear the lists.
+   */
+  fun clearList() {
+    SMS_LIST.SMS_LIST.clear()
+    SMS_LIST.SMS_LIST_MAP.clear()
   }
 }

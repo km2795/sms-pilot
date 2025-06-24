@@ -3,8 +3,8 @@ package sr79.works.smspilot
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
-import android.provider.Telephony
 import android.database.Cursor
+import android.provider.Telephony
 import java.nio.MappedByteBuffer
 
 /**
@@ -30,7 +30,7 @@ class SmsPilot {
    * @param permission SMS read permission.
    * @param context Context of the application.
    */
-  fun UpdateSmsReadPermission(context: Context, permission: Boolean) {
+  fun updateSmsReadPermission(context: Context, permission: Boolean) {
     DataStore().updateSmsReadPermission(context, permission)
   }
 
@@ -52,8 +52,7 @@ class SmsPilot {
    * Unload the SMS list.
    */
   fun unLoadSmsList() {
-    SMS_LIST.SMS_LIST.clear()
-    SMS_LIST.SMS_LIST_MAP.clear()
+    smsList.clearList()
   }
 
   /**

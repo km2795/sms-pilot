@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val loadPermission = DataStore().getSmsReadPermission(this)
+    val loadPermission = SmsPilot().checkSmsReadPermission(this)
 
     /*
      * In case user disables the permission or the system revokes the
