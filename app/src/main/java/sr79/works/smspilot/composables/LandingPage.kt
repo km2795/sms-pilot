@@ -1,5 +1,9 @@
 package sr79.works.smspilot.composables
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,8 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import sr79.works.smspilot.APP_TITLE
+import sr79.works.smspilot.DataStore
+import sr79.works.smspilot.SmsViewModel
 import sr79.works.smspilot.Thread
 import java.nio.MappedByteBuffer
 
@@ -30,13 +38,68 @@ fun LandingPage(
   smsList: List<Thread>,
   modelFile: MappedByteBuffer?,
   showPermissionButton: Boolean,
-  onRequestPermission: () -> Unit,
   onShowPermissionButton: (Boolean) -> Unit,
+  smsViewModel: SmsViewModel,
   modifier: Modifier = Modifier
 ) {
 
+  val context = LocalContext.current
+
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
+
+  // ActivityResultLauncher for permission request
+  val requestPermissionLauncher =
+    rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+      if (isGranted) {
+        onShowPermissionButton(false)
+
+        // Load through the ViewModel.
+        smsViewModel.initialLoadSmsMessages(context.contentResolver)
+
+        // Update the "READ YES" permission to the data store.
+        DataStore().updateSmsReadPermission(context, true)
+      } else {
+        // User denied permission.
+        onShowPermissionButton(true)
+        // Update the "READ NO" permission to the data store.
+        DataStore().updateSmsReadPermission(context, false)
+
+        // Not essentially required.
+        smsViewModel.clearSmsMessages()
+      }
+    }
+
+  val onRequestPermission = {
+    when {
+      ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.READ_SMS
+      ) == PackageManager.PERMISSION_GRANTED -> {
+        // Update the "READ YES" permission to the data store.
+        DataStore().updateSmsReadPermission(context, true)
+
+        // Load through ViewModel.
+        smsViewModel.initialLoadSmsMessages(context.contentResolver)
+
+        // Hide the permission button.
+        onShowPermissionButton(false)
+      }
+      else -> {
+        // Update the "READ NO" permission to the data store.
+        DataStore().updateSmsReadPermission(context, false)
+
+        // Show the permission dialog.
+        requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
+
+        // Show the permission button.
+        onShowPermissionButton(true)
+
+        // Not needed essentially.
+        smsViewModel.clearSmsMessages()
+      }
+    }
+  }
 
   Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
     TopAppBar(
