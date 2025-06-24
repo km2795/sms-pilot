@@ -1,4 +1,4 @@
-package com.example.smspilot
+package sr79.works.smspilot
 
 import android.content.Context
 
@@ -30,7 +30,8 @@ class DataStore {
   fun getSmsReadPermission(context: Context): Boolean {
     this.SMS_READ_PERMISSION = Utilities.readFile(
       context,
-      "sms_read_permission")?.toBoolean() ?: false
+      "sms_read_permission"
+    )?.toBoolean() ?: false
 
     return this.SMS_READ_PERMISSION
   }

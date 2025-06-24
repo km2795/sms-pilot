@@ -1,4 +1,4 @@
-package com.example.smspilot
+package sr79.works.smspilot
 
 import android.app.Activity
 import android.content.ContentResolver
@@ -91,7 +91,7 @@ class SmsPilot {
     )
 
     // You can add a selection and selectionArgs to filter messages
-    // For example, to get messages from a specific number:
+    // For works, to get messages from a specific number:
     // val selection = "${Telephony.Sms.ADDRESS} = ?"
     // val selectionArgs = arrayOf("1234567890")
     // Or to get messages after a certain date:

@@ -1,4 +1,4 @@
-package com.example.smspilot
+package sr79.works.smspilot
 
 
 /**

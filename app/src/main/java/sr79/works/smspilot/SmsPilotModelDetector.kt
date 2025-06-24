@@ -1,4 +1,4 @@
-package com.example.smspilot
+package sr79.works.smspilot
 
 import android.app.Activity
 import android.content.res.AssetFileDescriptor
@@ -6,7 +6,6 @@ import android.util.Log
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.io.IOException
-import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 

@@ -1,4 +1,4 @@
-package com.example.smspilot.ui.theme
+package sr79.works.smspilot.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.example.smspilot.ui.theme
+package sr79.works.smspilot.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
