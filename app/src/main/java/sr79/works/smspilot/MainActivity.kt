@@ -16,8 +16,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import java.nio.MappedByteBuffer
 import sr79.works.smspilot.composables.LandingPage
+import java.nio.MappedByteBuffer
 
 
 const val APP_TITLE = "SMS Pilot"
@@ -31,11 +31,19 @@ class MainActivity : ComponentActivity() {
   // For controlling visibility of the permission button.
   private var showPermissionButton by mutableStateOf(true)
 
+  val onShowPermissionButton = { show: Boolean ->
+    showPermissionButton = show
+    if (show) {
+      smsViewModel.clearSmsMessages()
+      SmsPilot().unLoadSmsList()
+    }
+  }
+
   // ActivityResultLauncher for permission request
   private val requestPermissionLauncher =
     registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
       if (isGranted) {
-        showPermissionButton = false
+        onShowPermissionButton(false)
 
         // Load through the ViewModel.
         smsViewModel.initialLoadSmsMessages(this.contentResolver)
@@ -44,7 +52,7 @@ class MainActivity : ComponentActivity() {
         DataStore().updateSmsReadPermission(this, true)
       } else {
         // User denied permission.
-        showPermissionButton = true
+        onShowPermissionButton(true)
         // Update the "READ NO" permission to the data store.
         DataStore().updateSmsReadPermission(this, false)
 
@@ -66,7 +74,7 @@ class MainActivity : ComponentActivity() {
         smsViewModel.initialLoadSmsMessages(this.contentResolver)
 
         // Hide the permission button.
-        showPermissionButton = false
+        onShowPermissionButton(false)
       }
       else -> {
         // Update the "READ NO" permission to the data store.
@@ -76,7 +84,7 @@ class MainActivity : ComponentActivity() {
         requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
 
         // Show the permission button.
-        showPermissionButton = true
+        onShowPermissionButton(true)
 
         // Not needed essentially.
         smsViewModel.clearSmsMessages()
@@ -105,10 +113,10 @@ class MainActivity : ComponentActivity() {
       ) != PackageManager.PERMISSION_GRANTED)) {
 
       // Hide the permission button.
-      showPermissionButton = true
+      onShowPermissionButton(true)
 
     } else if (loadPermission) {
-      showPermissionButton = false
+      onShowPermissionButton(false)
 
       // Load through ViewModel.
       smsViewModel.initialLoadSmsMessages(this.contentResolver)
@@ -129,13 +137,7 @@ class MainActivity : ComponentActivity() {
           DETECTOR,
           showPermissionButton,
           onRequestPermission,
-          onShowPermissionButton = { show ->
-            showPermissionButton = show
-            if (show) {
-              smsViewModel.clearSmsMessages()
-              SmsPilot().unLoadSmsList()
-            }
-          },
+          onShowPermissionButton,
           modifier = Modifier.padding(innerPadding)
         )
       }
