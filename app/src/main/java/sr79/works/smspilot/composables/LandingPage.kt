@@ -1,6 +1,11 @@
 package sr79.works.smspilot.composables
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,13 +56,29 @@ fun LandingPage(
       ),
       modifier = Modifier.shadow(6.dp)
     )
-    ThreadList(
-      smsList,
-      modelFile,
-      showPermissionButton,
-      onRequestPermission,
-      onShowPermissionButton,
+    Column(
       modifier = Modifier
-    )
+        .fillMaxSize()
+        .background(Color.White),
+      verticalArrangement = Arrangement.Top,
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      if (showPermissionButton) {
+        Button(onClick = onRequestPermission) {
+          Text("Load SMS Messages")
+        }
+        if (smsList.isEmpty()) {
+          Text(
+            "No SMS messages found or permission not granted.",
+            modifier = Modifier.padding(16.dp)
+          )
+        }
+      } else {
+        ThreadList(
+          smsList,
+          modifier = Modifier
+        )
+      }
+    }
   }
 }
