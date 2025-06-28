@@ -34,9 +34,9 @@ fun loadModelFile(activity: Activity, modelPath: String): MappedByteBuffer? {
   }
 }
 
-fun runInference(model: MappedByteBuffer?, inputData: String): String {
+fun runInference(model: MappedByteBuffer?, inputData: String): Float {
   if (model == null) {
-    return "No Model Found!!"
+    return -1.0f
   }
 
   // Initialize the interpreter.
@@ -67,16 +67,31 @@ fun runInference(model: MappedByteBuffer?, inputData: String): String {
     // Process the output
     val verdict: Float = outputTensor[0][0]
 
-    // Return the verdict from the model.
-    return if (verdict > 0.5) {
-      "Verdict: Spam"
-    } else {
-      "Verdict: Not Spam"
-    }
+    return verdict
   } catch (e: Exception) {
     Log.i("ModelError: ", e.printStackTrace().toString())
 
     // Model error occurred.
-    return("Some Error Occurred!!")
+    return 2f
+  }
+}
+
+/**
+ * Wrapper function for the runInference.
+ *
+ * @param modeFile Model file.
+ * @param inputData Input data.
+ * @return Verdict Boolean
+ */
+fun spamOrNot(modeFile: MappedByteBuffer?, inputData: String): Boolean? {
+  val verdict = runInference(modeFile, inputData)
+
+  // In case of error.
+  return if (verdict == 2f) {
+    null
+  } else if (verdict > 0.5f) {
+    true
+  } else {
+    false
   }
 }
