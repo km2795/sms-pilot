@@ -36,6 +36,7 @@ import java.nio.MappedByteBuffer
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandingPage(
+  appTitle,
   smsList: List<Thread>,
   modelFile: MappedByteBuffer?,
   showPermissionButton: Boolean,
@@ -104,7 +105,7 @@ fun LandingPage(
 
   Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
     TopAppBar(
-      title = { Text(APP_TITLE) },
+      title = { Text(appTitle) },
       navigationIcon = {},
       actions = {
         TopBarActions(

@@ -15,12 +15,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import sr79.works.smspilot.APP.detector
 import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
 
 
-const val APP_TITLE = "SMS Pilot"
-var DETECTOR: MappedByteBuffer? = null
+internal object APP {
+  const val APP_TITLE = "SMS Pilot"
+  internal var detector: MappedByteBuffer? = null
+}
 
 class MainActivity : ComponentActivity() {
 
@@ -71,7 +74,7 @@ class MainActivity : ComponentActivity() {
     /*
      * Load the detector.
      */
-    DETECTOR = SmsPilot().setupDetector(this)
+    APP.detector = SmsPilot().setupDetector(this)
 
     setContent {
       // Collect the SMS list from the ViewModel as a State.
@@ -79,8 +82,9 @@ class MainActivity : ComponentActivity() {
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
+          APP.APP_TITLE,
           SmsPilot().formAndGetThreadList(smsListFromViewModel.toMutableList()),
-          DETECTOR,
+          detector,
           showPermissionButton,
           onShowPermissionButton,
           smsViewModel,

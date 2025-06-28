@@ -35,7 +35,7 @@ class HashingVectorizer(private val nFeatures: Int = 2.0.pow(8.0).toInt(),
     /**
      * Transform text data into vectorized format.
      */
-    fun transform(item: List<String>): DoubleArray {
+    private fun transform(item: List<String>): DoubleArray {
         require(!(item == null || item.isEmpty())) { "Iterable over raw text documents expected." }
 
         val vectorizedData = DoubleArray(nFeatures) // 1D array
