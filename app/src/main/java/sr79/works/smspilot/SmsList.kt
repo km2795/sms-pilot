@@ -3,7 +3,7 @@ package sr79.works.smspilot
 /**
  * Main SMS list.
  */
-class SmsList {
+object SmsList {
   /**
    * Add message to a thread in the list.
    *

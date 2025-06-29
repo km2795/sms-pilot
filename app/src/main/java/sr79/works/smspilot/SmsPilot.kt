@@ -51,7 +51,7 @@ class SmsPilot {
    * Unload the SMS list.
    */
   fun unLoadSmsList(map: MutableMap<String, Thread>, list: MutableList<Thread>) {
-    SmsList().clearList(map, list)
+    SmsList.clearList(map, list)
   }
 
   /**
@@ -147,11 +147,11 @@ class SmsPilot {
 
     // To clear the list, to avoid redundancy.
     // This is very inefficient.
-    SmsList().clearList(smsMap, APP.SMS_LIST)
+    SmsList.clearList(smsMap, APP.SMS_LIST)
 
     for (message in messageList) {
-      SmsList().addMessage(smsMap, message)
+      SmsList.addMessage(smsMap, message)
     }
-    return SmsList().getThreadList(smsMap)
+    return SmsList.getThreadList(smsMap)
   }
 }

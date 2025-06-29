@@ -13,7 +13,7 @@ class ThreadActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
 
     val threadId = intent.getStringExtra("THREAD_ID")
-    val sms = SmsList().getThread(APP.SMS_LIST_MAP, threadId!!)
+    val sms = SmsList.getThread(APP.SMS_LIST_MAP, threadId!!)
 
     setContent {
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
