@@ -12,7 +12,6 @@ import java.nio.MappedByteBuffer
  * is initiated from.
  */
 class SmsPilot {
-  private var smsList = SmsList()
 
   /**
    * Get the SMS read permission from the data cache.
@@ -51,8 +50,8 @@ class SmsPilot {
   /**
    * Unload the SMS list.
    */
-  fun unLoadSmsList() {
-    smsList.clearList()
+  fun unLoadSmsList(map: MutableMap<String, Thread>, list: MutableList<Thread>) {
+    SmsList().clearList(map, list)
   }
 
   /**
@@ -124,7 +123,7 @@ class SmsPilot {
             // Basic null checks, especially for address which can sometimes be null
             if (address != null && body != null) {
               // Add the message.
-              smsList.add(Message(id, address, body, date, type))
+              smsList.add(Message(id, address, body, date, type, spamOrNot(APP.detector, body)))
             }
 
           } while (it.moveToNext())
@@ -141,10 +140,18 @@ class SmsPilot {
    * @param messageList List of messages.
    * @return List of threads.
    */
-  fun formAndGetThreadList(messageList: MutableList<Message>): List<Thread> {
+  fun formAndGetThreadList(
+    smsMap: MutableMap<String, Thread>,
+    messageList: MutableList<Message>
+  ): List<Thread> {
+
+    // To clear the list, to avoid redundancy.
+    // This is very inefficient.
+    SmsList().clearList(smsMap, APP.SMS_LIST)
+
     for (message in messageList) {
-      smsList.addMessage(message)
+      SmsList().addMessage(smsMap, message)
     }
-    return smsList.getThreadList()
+    return SmsList().getThreadList(smsMap)
   }
 }

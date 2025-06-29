@@ -1,13 +1,5 @@
 package sr79.works.smspilot
 
-import java.util.concurrent.ConcurrentHashMap
-
-
-object SMS_LIST {
-  var SMS_LIST: MutableList<Thread> = mutableListOf()
-  var SMS_LIST_MAP: MutableMap<String, Thread> = ConcurrentHashMap<String, Thread>()
-}
-
 /**
  * Main SMS list.
  */
@@ -17,42 +9,43 @@ class SmsList {
    *
    * @param message Message to add.
    */
-//  fun addMessage(message: Message) {
-//    val address = message.getAddress()
-//    if (SMS_LIST.SMS_LIST_MAP[address] != null) {
-//      SMS_LIST.SMS_LIST_MAP[address]?.addMessage(message)
-//    } else {
-//      SMS_LIST.SMS_LIST_MAP[address] = Thread(message, address)
-//    }
-//  }
-
-  fun addMessage(message: Message) {
+  fun addMessage(smsMap: MutableMap<String, Thread>, message: Message) {
     val address = message.getAddress()
-
-    SMS_LIST.SMS_LIST_MAP.compute(address) { _key, existingThread ->
-      if (existingThread != null) {
-        existingThread.addMessage(message)
-        existingThread
-      } else {
-        Thread(message, address)
-      }
+    if (smsMap[address] != null) {
+      smsMap[address]?.addMessage(message)
+    } else {
+      smsMap[address] = Thread(message, address)
     }
   }
+
+//
+//  fun addMessage(message: Message) {
+//    val address = message.getAddress()
+//
+//    SMS_LIST.SMS_LIST_MAP.compute(address) { _key, existingThread ->
+//      if (existingThread != null) {
+//        existingThread.addMessage(message)
+//        existingThread
+//      } else {
+//        Thread(message, address)
+//      }
+//    }
+//  }
 
   /**
    * Return a thread from the list.
    *
    * @param address Address of the thread.
    */
-  fun getThread(address: String): Thread? {
-    return SMS_LIST.SMS_LIST_MAP[address]
+  fun getThread(smsMap: MutableMap<String, Thread>, address: String): Thread? {
+    return smsMap[address]
   }
 
   /**
    * Return the complete list.
    */
-  fun getThreadList(): MutableList<Thread> {
-    return SMS_LIST.SMS_LIST_MAP
+  fun getThreadList(smsMap: MutableMap<String, Thread>): MutableList<Thread> {
+    return smsMap
       .values
       .toList()
       .sortedByDescending { it.getShowDate() }
@@ -62,8 +55,8 @@ class SmsList {
   /**
    * Clear the lists.
    */
-  fun clearList() {
-    SMS_LIST.SMS_LIST.clear()
-    SMS_LIST.SMS_LIST_MAP.clear()
+  fun clearList(smsMap: MutableMap<String, Thread>, smsList: MutableList<Thread>) {
+    smsList.clear()
+    smsMap.clear()
   }
 }

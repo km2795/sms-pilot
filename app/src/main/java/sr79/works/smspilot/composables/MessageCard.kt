@@ -1,6 +1,8 @@
 package sr79.works.smspilot
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,11 +16,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.nio.MappedByteBuffer
 
 @Composable
-fun MessageCard(sms: Message, modifier: Modifier = Modifier) {
+fun MessageCard(
+  sms: Message,
+  modelFile: MappedByteBuffer?,
+  modifier: Modifier = Modifier
+) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -31,27 +39,35 @@ fun MessageCard(sms: Message, modifier: Modifier = Modifier) {
     BoxWithConstraints {
       val cardMaxWidth = maxWidth * 0.75f
       ElevatedCard(
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        elevation =
+          CardDefaults
+            .cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
           .padding(vertical = 4.dp, horizontal = 8.dp)
           .widthIn(max = cardMaxWidth)
       ) {
-
-        Column(
-          modifier = Modifier
-            .padding(10.dp),
-          horizontalAlignment = Alignment.End
-        ) {
-          Text(
+        Box(modifier = Modifier.background(Color.White)) {
+          Column(
+            modifier = Modifier
+              .padding(10.dp),
+            horizontalAlignment = Alignment.End
+          ) {
+            Text(
             sms.getBody(),
-            fontSize = 16.sp,
-            modifier = Modifier.padding(end = 20.dp)
-          )
-          Text(
+              fontSize = 14.sp,
+              modifier = Modifier.padding(end = 20.dp)
+            )
+            Text(
             Utilities.modifyDateField(sms.getDate().toString(), false),
-            fontSize = 10.sp,
-            color = Color.Gray
-          )
+              fontSize = 10.sp,
+              color = Color.Gray
+            )
+
+            // Show the verdict of the message. (Spam or not).
+          if (spamOrNot(modelFile, sms.getBody())) {
+            Text("SPAM", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Red)
+          }
+          }
         }
       }
     }

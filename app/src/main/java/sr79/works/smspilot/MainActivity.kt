@@ -18,17 +18,20 @@ import androidx.core.content.ContextCompat
 import sr79.works.smspilot.APP.detector
 import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
+import java.util.concurrent.ConcurrentHashMap
 
 
-internal object APP {
+object APP {
   const val APP_TITLE = "SMS Pilot"
-  internal var detector: MappedByteBuffer? = null
+  var detector: MappedByteBuffer? = null
+  var SMS_LIST: MutableList<Thread> = mutableListOf()
+  var SMS_LIST_MAP: MutableMap<String, Thread> = ConcurrentHashMap<String, Thread>()
 }
 
 class MainActivity : ComponentActivity() {
 
-  // ViewModel for managing the SMS_LIST
-  private val smsViewModel: SmsViewModel by viewModels()
+  // ViewModel for managing the Landing Page (or Landing Screen).
+  private val landingPageViewModel: LandingPageViewModel by viewModels()
 
   // For controlling visibility of the permission button.
   private var showPermissionButton by mutableStateOf(true)
@@ -36,13 +39,17 @@ class MainActivity : ComponentActivity() {
   val onShowPermissionButton = { show: Boolean ->
     showPermissionButton = show
     if (show) {
-      smsViewModel.clearSmsMessages()
-      SmsPilot().unLoadSmsList()
+      landingPageViewModel.clearSmsMessages()
     }
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    /*
+     * Load the detector.
+     */
+    APP.detector = SmsPilot().setupDetector(this)
 
     val loadPermission = SmsPilot().checkSmsReadPermission(this)
 
@@ -68,26 +75,21 @@ class MainActivity : ComponentActivity() {
       onShowPermissionButton(false)
 
       // Load through ViewModel.
-      smsViewModel.initialLoadSmsMessages(this.contentResolver)
+      landingPageViewModel.loadSmsMessages()
     }
 
-    /*
-     * Load the detector.
-     */
-    APP.detector = SmsPilot().setupDetector(this)
-
     setContent {
-      // Collect the SMS list from the ViewModel as a State.
-      val smsListFromViewModel by smsViewModel.smsThreads.collectAsState()
+      // Collect the message list from the ViewModel as a State.
+      val _messageList by landingPageViewModel._messageList.collectAsState()
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           APP.APP_TITLE,
-          SmsPilot().formAndGetThreadList(smsListFromViewModel.toMutableList()),
+          SmsPilot().formAndGetThreadList(APP.SMS_LIST_MAP, _messageList.toMutableList()),
           detector,
           showPermissionButton,
           onShowPermissionButton,
-          smsViewModel,
+          landingPageViewModel,
           modifier = Modifier.padding(innerPadding)
         )
       }

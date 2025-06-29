@@ -11,11 +11,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import sr79.works.smspilot.Thread
+import java.nio.MappedByteBuffer
 
 // Simple Composable to display the SMS list and a button to request permission
 @Composable
 fun ThreadList(
   smsList: List<Thread>,
+  modelFile: MappedByteBuffer?,
   modifier: Modifier = Modifier
 ) {
   Column(
@@ -31,7 +33,7 @@ fun ThreadList(
   ) {
     // Load each Thread.
     smsList.forEach { sms ->
-      ThreadCard(sms, modifier)
+      ThreadCard(sms, modelFile, modifier)
     }
   }
 }

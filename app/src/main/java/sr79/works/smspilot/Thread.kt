@@ -9,7 +9,8 @@ class Thread(
   private var id: Long = 0,
   private var address: String = "",
   private var bodyThumbnail: String = "",
-  private var showDate: Long = 0
+  private var showDate: Long = 0,
+  private var hasSpam: Int = 0
 ) {
 
   constructor(message: Message, address: String) : this() {
@@ -62,6 +63,12 @@ class Thread(
     this.address = message.getAddress()
     this.id = message.getId()
     this.updateThumbnailData(message)
+    val verdict = message.getSpamOrNot()
+    println("pank" + verdict)
+    if (verdict) {
+      println("nice")
+      this.hasSpam++
+    }
   }
 
   /**
@@ -132,6 +139,10 @@ class Thread(
    */
   private fun updateShowDate(date: Long) {
    this.showDate = date
+  }
+
+  fun hasSpamOrNot(): Boolean {
+    return this.hasSpam > 0
   }
 
 }

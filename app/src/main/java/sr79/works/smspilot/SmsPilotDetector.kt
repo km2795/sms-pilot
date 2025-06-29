@@ -34,11 +34,7 @@ fun loadModelFile(activity: Activity, modelPath: String): MappedByteBuffer? {
   }
 }
 
-fun runInference(model: MappedByteBuffer?, inputData: String): Float {
-  if (model == null) {
-    return -1.0f
-  }
-
+fun runInference(model: MappedByteBuffer, inputData: String): Float {
   // Initialize the interpreter.
   val interpreter = Interpreter(model)
 
@@ -72,24 +68,26 @@ fun runInference(model: MappedByteBuffer?, inputData: String): Float {
     Log.i("ModelError: ", e.printStackTrace().toString())
 
     // Model error occurred.
-    return 2f
+    return -1f
   }
 }
 
 /**
  * Wrapper function for the runInference.
  *
- * @param modeFile Model file.
+ * @param modelFile Model file.
  * @param inputData Input data.
  * @return Verdict Boolean
  */
-fun spamOrNot(modeFile: MappedByteBuffer?, inputData: String): Boolean? {
-  val verdict = runInference(modeFile, inputData)
+fun spamOrNot(modelFile: MappedByteBuffer?, inputData: String): Boolean {
+  if (modelFile == null) {
+    return false
+  }
+
+  val verdict = runInference(modelFile, inputData)
 
   // In case of error.
-  return if (verdict == 2f) {
-    null
-  } else if (verdict > 0.5f) {
+  return if (verdict > 0.5f) {
     true
   } else {
     false

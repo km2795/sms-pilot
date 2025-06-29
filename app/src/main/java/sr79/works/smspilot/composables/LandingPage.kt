@@ -26,27 +26,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import sr79.works.smspilot.APP_TITLE
+import androidx.lifecycle.viewmodel.compose.viewModel
+import sr79.works.smspilot.APP
 import sr79.works.smspilot.DataStore
+import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.SmsPilot
-import sr79.works.smspilot.SmsViewModel
 import sr79.works.smspilot.Thread
 import java.nio.MappedByteBuffer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandingPage(
-  appTitle,
+  appTitle: String,
   smsList: List<Thread>,
   modelFile: MappedByteBuffer?,
   showPermissionButton: Boolean,
   onShowPermissionButton: (Boolean) -> Unit,
-  smsViewModel: SmsViewModel,
+  landingPageViewModel: LandingPageViewModel,
   modifier: Modifier = Modifier
 ) {
 
   val context = LocalContext.current
 
+  // ViewModel for the landing page.
+  val landingPageViewModel: LandingPageViewModel = viewModel()
+  
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
 
@@ -57,18 +61,19 @@ fun LandingPage(
         onShowPermissionButton(false)
 
         // Load through the ViewModel.
-        smsViewModel.initialLoadSmsMessages(context.contentResolver)
+        landingPageViewModel.loadSmsMessages()
 
         // Update the "READ YES" permission to the data store.
         DataStore().updateSmsReadPermission(context, true)
       } else {
         // User denied permission.
         onShowPermissionButton(true)
+
         // Update the "READ NO" permission to the data store.
         SmsPilot().updateSmsReadPermission(context, false)
 
         // Not essentially required.
-        smsViewModel.clearSmsMessages()
+        landingPageViewModel.clearSmsMessages()
       }
     }
 
@@ -82,7 +87,7 @@ fun LandingPage(
         SmsPilot().updateSmsReadPermission(context, true)
 
         // Load through ViewModel.
-        smsViewModel.initialLoadSmsMessages(context.contentResolver)
+        landingPageViewModel.loadSmsMessages()
 
         // Hide the permission button.
         onShowPermissionButton(false)
@@ -98,7 +103,8 @@ fun LandingPage(
         onShowPermissionButton(true)
 
         // Not needed essentially.
-        smsViewModel.clearSmsMessages()
+        landingPageViewModel.clearSmsMessages()
+        SmsPilot().unLoadSmsList(APP.SMS_LIST_MAP, APP.SMS_LIST)
       }
     }
   }
@@ -141,6 +147,7 @@ fun LandingPage(
       } else {
         ThreadList(
           smsList,
+          modelFile,
           modifier = Modifier
         )
       }

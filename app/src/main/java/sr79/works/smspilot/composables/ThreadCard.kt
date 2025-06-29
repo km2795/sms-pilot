@@ -2,6 +2,7 @@ package sr79.works.smspilot.composables
 
 import android.content.Intent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,20 +32,19 @@ import sr79.works.smspilot.R
 import sr79.works.smspilot.Thread
 import sr79.works.smspilot.ThreadActivity
 import sr79.works.smspilot.Utilities
+import java.nio.MappedByteBuffer
 
 @Composable
-fun ThreadCard(sms: Thread, modifier: Modifier = Modifier) {
+fun ThreadCard(
+  sms: Thread,
+  modelFile: MappedByteBuffer?,
+  modifier: Modifier = Modifier
+) {
   val smsBody: String = sms.getBodyThumbnail()
   val context = LocalContext.current
 
-  /*
-   * Run the inference on the SMS body.
-   * Temporarily Shut-off.
-   */
-  /*val verdict: String = runInference(modelFile, smsBody)*/
-
   ElevatedCard(
-    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     onClick = {
       val intent = Intent(context, ThreadActivity::class.java)
       intent.putExtra("THREAD_ID", sms.getAddress())
@@ -52,69 +52,77 @@ fun ThreadCard(sms: Thread, modifier: Modifier = Modifier) {
     },
     modifier = Modifier.padding(5.dp)
   ) {
-    Row(modifier = Modifier.padding(10.dp)) {
-      Box(modifier = Modifier) {
-        Image(
-          painter = painterResource(id = R.drawable.user_foreground),
-          contentDescription = "Contact Image",
-          contentScale = ContentScale.Crop,
-          colorFilter = ColorFilter.tint(Color.DarkGray),
-          modifier = modifier
-            .size(50.dp)
-            .clip(CircleShape)
-            .border(0.5.dp, Color.Black, CircleShape)
-        )
-      }
-      Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            sms.getAddress(),
-            modifier.padding(horizontal = 15.dp, vertical = 3.dp)
-          )
-          Text(
-            Utilities.modifyDateField(sms.getShowDate().toString(), false),
-            textAlign = TextAlign.Right,
-            fontSize = 13.sp,
-            modifier = Modifier
-              .padding(horizontal = 15.dp, vertical = 3.dp)
-              .weight(1f)
+    Box(modifier = Modifier.background(Color.White)) {
+      Row(modifier = Modifier.padding(10.dp)) {
+        Box(modifier = Modifier) {
+          Image(
+            painter = painterResource(id = R.drawable.user_foreground),
+            contentDescription = "Contact Image",
+            contentScale = ContentScale.Crop,
+            colorFilter = ColorFilter.tint(Color.DarkGray),
+            modifier = modifier
+              .size(50.dp)
+              .clip(CircleShape)
+              .border(0.5.dp, Color.Black, CircleShape)
           )
         }
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Text(
-            smsBody,
-            modifier
-              .padding(horizontal = 15.dp, vertical = 3.dp)
-              .weight(8f),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-          )
-          Spacer(modifier = Modifier.weight(1f))
-          Box(modifier = Modifier.weight(1f)) {
-            Box(
-              contentAlignment = Alignment.Center,
+        Column(modifier = Modifier.fillMaxWidth()) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Text(
+              sms.getAddress(),
+              modifier.padding(horizontal = 15.dp, vertical = 3.dp)
+            )
+            Text(
+              Utilities.modifyDateField(sms.getShowDate().toString(), false),
+              textAlign = TextAlign.Right,
+              fontSize = 13.sp,
               modifier = Modifier
-                .size(20.dp)
-                .clip(CircleShape)
-                .border(1.dp, Color.Black, CircleShape)
-            ) {
-              Text(
-                sms.getThreadSize().toString(),
-                fontSize = 13.sp
-              )
+                .padding(horizontal = 15.dp, vertical = 3.dp)
+                .weight(1f)
+            )
+          }
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Text(
+              smsBody,
+              modifier
+                .padding(horizontal = 15.dp, vertical = 3.dp)
+                .weight(8f),
+              maxLines = 2,
+              overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Box(modifier = Modifier.weight(1f)) {
+              Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                  .size(20.dp)
+                  .clip(CircleShape)
+                  .border(1.dp, Color.Black, CircleShape)
+              ) {
+                Text(
+                  sms.getThreadSize().toString(),
+                  fontSize = 13.sp
+                )
+              }
             }
+          }
+          if (sms.hasSpamOrNot()) {
+            Text(
+              "SPAM DETECTED",
+              fontSize = 13.sp,
+              color = Color.Red,
+              modifier = Modifier
+                .padding(horizontal = 15.dp, vertical = 3.dp)
+            )
           }
         }
       }
     }
-
-    // Show the verdict of the message. (Spam or not).
-    /*Text(verdict, fontWeight = FontWeight.Bold)*/
   }
 }

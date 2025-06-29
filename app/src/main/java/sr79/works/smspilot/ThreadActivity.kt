@@ -13,7 +13,7 @@ class ThreadActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
 
     val threadId = intent.getStringExtra("THREAD_ID")
-    val sms = SmsList().getThread(threadId!!)
+    val sms = SmsList().getThread(APP.SMS_LIST_MAP, threadId!!)
 
     setContent {
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -25,6 +25,7 @@ class ThreadActivity : AppCompatActivity() {
           // Load the message list.
           CurrentPage(
             topBarName,
+            APP.detector,
             sms.getMessageListAscending(),
             modifier = Modifier.padding(innerPadding)
           )
