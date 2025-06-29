@@ -89,12 +89,12 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       // Collect the message list from the ViewModel as a State.
-      val _messageList by landingPageViewModel._messageList.collectAsState()
+      val messageList by landingPageViewModel.messageList.collectAsState()
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           APP.APP_TITLE,
-          AppHandler.formAndGetThreadList(APP.SMS_LIST_MAP, _messageList.toMutableList()),
+          AppHandler.formAndGetThreadList(APP.SMS_LIST_MAP, messageList.toMutableList()),
           detector,
           showPermissionButton,
           onShowPermissionButton,

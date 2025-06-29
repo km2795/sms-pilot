@@ -9,12 +9,17 @@ import android.provider.Telephony
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LandingPageViewModel(private val application: Application): AndroidViewModel(application) {
 
-  // Message list.
-  val _messageList = MutableStateFlow<List<Message>>(emptyList())
+  // private message list for use by view model (internal use).
+  private val _messageList = MutableStateFlow<List<Message>>(emptyList())
+
+  // Non-mutable list for external use.
+  val messageList: StateFlow<List<Message>> = _messageList
+
   private val contentResolver = application.contentResolver
 
   // For the content change. (For updates in the SMSs content provider).
