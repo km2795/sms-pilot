@@ -50,6 +50,7 @@ android {
     implementation(libs.androidx.material3)
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("com.github.rholder:snowball-stemmer:1.3.0.581.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
