@@ -19,7 +19,7 @@ import java.nio.MappedByteBuffer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrentPage(
+fun ThreadPage(
   topBarName: String,
   modelFile: MappedByteBuffer?,
   smsList: List<Message>,

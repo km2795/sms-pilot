@@ -23,7 +23,7 @@ class ThreadActivity : AppCompatActivity() {
           var topBarName = sms.getAddress()
 
           // Load the message list.
-          CurrentPage(
+          ThreadPage(
             topBarName,
             APP.detector,
             sms.getMessageListAscending(),
