@@ -41,13 +41,14 @@ fun runInference(model: MappedByteBuffer, inputData: String): Float {
   val interpreter = Interpreter(model)
 
   // Process the input data.
-  val cleaned = TextPreprocessor.processWord(true, false, inputData, "\n") as String
+  val cleaned =
+    TextPreprocessor.processWord(true, false, inputData, "\n") as String
 
   // Parameterize the Vectorizer.
   val vectorizer = HashingVectorizer(200)
 
   // Transform the input data into a vector.
-  val vectorizedData: DoubleArray = vectorizer.fit(listOf(cleaned))
+  val vectorizedData: DoubleArray = vectorizer.transform(listOf(cleaned))
 
   // Convert the vectorized data into a feed-able format for the model.
   val vectorizedFloatData = vectorizedData.map { it.toFloat() }.toFloatArray()
