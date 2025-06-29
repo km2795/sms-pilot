@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.res.AssetFileDescriptor
 import android.util.Log
 import org.tensorflow.lite.Interpreter
+import sr79.works.smspilot.detector.HashingVectorizer
+import sr79.works.smspilot.detector.TextPreprocessor
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.MappedByteBuffer

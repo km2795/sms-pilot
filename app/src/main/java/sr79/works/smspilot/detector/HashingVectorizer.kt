@@ -1,4 +1,4 @@
-package sr79.works.smspilot
+package sr79.works.smspilot.detector
 
 import java.util.Arrays
 import kotlin.math.abs
