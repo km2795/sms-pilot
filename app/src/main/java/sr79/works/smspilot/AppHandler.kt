@@ -8,10 +8,9 @@ import android.provider.Telephony
 import java.nio.MappedByteBuffer
 
 /**
- * Main Class where the app's logic reside or
- * is initiated from.
+ * Handler class for app's main logic.
  */
-class SmsPilot {
+object AppHandler {
 
   /**
    * Get the SMS read permission from the data cache.

@@ -30,7 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import sr79.works.smspilot.APP
 import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
-import sr79.works.smspilot.SmsPilot
+import sr79.works.smspilot.AppHandler
 import sr79.works.smspilot.Thread
 import java.nio.MappedByteBuffer
 
@@ -70,7 +70,7 @@ fun LandingPage(
         onShowPermissionButton(true)
 
         // Update the "READ NO" permission to the data store.
-        SmsPilot().updateSmsReadPermission(context, false)
+        AppHandler.updateSmsReadPermission(context, false)
 
         // Not essentially required.
         landingPageViewModel.clearSmsMessages()
@@ -84,7 +84,7 @@ fun LandingPage(
         Manifest.permission.READ_SMS
       ) == PackageManager.PERMISSION_GRANTED -> {
         // Update the "READ YES" permission to the data store.
-        SmsPilot().updateSmsReadPermission(context, true)
+        AppHandler.updateSmsReadPermission(context, true)
 
         // Load through ViewModel.
         landingPageViewModel.loadSmsMessages()
@@ -94,7 +94,7 @@ fun LandingPage(
       }
       else -> {
         // Update the "READ NO" permission to the data store.
-        SmsPilot().updateSmsReadPermission(context, false)
+        AppHandler.updateSmsReadPermission(context, false)
 
         // Show the permission dialog.
         requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
@@ -104,7 +104,7 @@ fun LandingPage(
 
         // Not needed essentially.
         landingPageViewModel.clearSmsMessages()
-        SmsPilot().unLoadSmsList(APP.SMS_LIST_MAP, APP.SMS_LIST)
+        AppHandler.unLoadSmsList(APP.SMS_LIST_MAP, APP.SMS_LIST)
       }
     }
   }

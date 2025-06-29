@@ -58,9 +58,9 @@ class MainActivity : ComponentActivity() {
     /*
      * Load the detector.
      */
-    APP.detector = SmsPilot().setupDetector(this)
+    APP.detector = AppHandler.setupDetector(this)
 
-    val loadPermission = SmsPilot().checkSmsReadPermission(this)
+    val loadPermission = AppHandler.checkSmsReadPermission(this)
 
     /*
      * In case user disables the permission or the system revokes the
@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           APP.APP_TITLE,
-          SmsPilot().formAndGetThreadList(APP.SMS_LIST_MAP, _messageList.toMutableList()),
+          AppHandler.formAndGetThreadList(APP.SMS_LIST_MAP, _messageList.toMutableList()),
           detector,
           showPermissionButton,
           onShowPermissionButton,

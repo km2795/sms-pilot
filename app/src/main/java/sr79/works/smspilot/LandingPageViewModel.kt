@@ -40,7 +40,7 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
    */
   fun loadSmsMessages() {
     viewModelScope.launch {
-      _messageList.value = SmsPilot().getSmsList(contentResolver)
+      _messageList.value = AppHandler.getSmsList(contentResolver)
     }
   }
 
@@ -50,7 +50,7 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
   fun refreshSmsMessages() {
     // Should fetch and check for updates.
     viewModelScope.launch {
-      _messageList.value = SmsPilot().getSmsList(contentResolver)
+      _messageList.value = AppHandler.getSmsList(contentResolver)
     }
   }
 
