@@ -64,9 +64,7 @@ class Thread(
     this.id = message.getId()
     this.updateThumbnailData(message)
     val verdict = message.getSpamOrNot()
-    println("pank" + verdict)
     if (verdict) {
-      println("nice")
       this.hasSpam++
     }
   }
