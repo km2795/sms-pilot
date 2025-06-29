@@ -18,7 +18,6 @@ import androidx.core.content.ContextCompat
 import sr79.works.smspilot.APP.detector
 import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
-import java.util.concurrent.ConcurrentHashMap
 
 
 // Globals.
@@ -33,7 +32,7 @@ object APP {
   var SMS_LIST: MutableList<Thread> = mutableListOf()
 
   // SMS Map (Map of Threads to their address).
-  var SMS_LIST_MAP: MutableMap<String, Thread> = ConcurrentHashMap<String, Thread>()
+  var SMS_LIST_MAP: MutableMap<String, Thread> = HashMap<String, Thread>()
 }
 
 // Landing Page.
