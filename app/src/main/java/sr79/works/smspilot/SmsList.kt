@@ -18,20 +18,6 @@ class SmsList {
     }
   }
 
-//
-//  fun addMessage(message: Message) {
-//    val address = message.getAddress()
-//
-//    SMS_LIST.SMS_LIST_MAP.compute(address) { _key, existingThread ->
-//      if (existingThread != null) {
-//        existingThread.addMessage(message)
-//        existingThread
-//      } else {
-//        Thread(message, address)
-//      }
-//    }
-//  }
-
   /**
    * Return a thread from the list.
    *
