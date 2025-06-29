@@ -21,13 +21,22 @@ import java.nio.MappedByteBuffer
 import java.util.concurrent.ConcurrentHashMap
 
 
+// Globals.
 object APP {
+  // Title of the Top Action Bar (in the main activity).
   const val APP_TITLE = "SMS Pilot"
+
+  // Reference to the detector.
   var detector: MappedByteBuffer? = null
+
+  // SMS List (list of threads).
   var SMS_LIST: MutableList<Thread> = mutableListOf()
+
+  // SMS Map (Map of Threads to their address).
   var SMS_LIST_MAP: MutableMap<String, Thread> = ConcurrentHashMap<String, Thread>()
 }
 
+// Landing Page.
 class MainActivity : ComponentActivity() {
 
   // ViewModel for managing the Landing Page (or Landing Screen).
