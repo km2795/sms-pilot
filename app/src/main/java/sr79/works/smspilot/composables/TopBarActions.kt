@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import sr79.works.smspilot.DataStore
+import sr79.works.smspilot.APP
 
 @Composable
 fun TopBarActions(
@@ -39,7 +39,7 @@ fun TopBarActions(
       text = { Text("Clear Permissions") },
       onClick = {
         // Update the "READ NO" permission to the data store.
-        DataStore().updateSmsReadPermission(context, false)
+        APP.DATA_STORE_HANDLE?.updateSmsReadPermission(context, false)
 
         // Update the ThreadList Composable to hide the list and show the button.
         onShowPermissionButton(true)

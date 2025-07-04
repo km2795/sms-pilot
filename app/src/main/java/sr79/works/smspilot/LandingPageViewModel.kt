@@ -45,7 +45,7 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
    */
   fun loadSmsMessages() {
     viewModelScope.launch {
-      _messageList.value = AppHandler.getSmsList(contentResolver)
+      _messageList.value = APP.DATA_STORE_HANDLE?.loadMessageList() ?: AppHandler.getSmsList(contentResolver)
     }
   }
 
@@ -55,7 +55,7 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
   fun refreshSmsMessages() {
     // Should fetch and check for updates.
     viewModelScope.launch {
-      _messageList.value = AppHandler.getSmsList(contentResolver)
+      _messageList.value = APP.DATA_STORE_HANDLE?.loadMessageList() ?: AppHandler.getSmsList(contentResolver)
     }
   }
 
@@ -64,5 +64,6 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
    */
   fun clearSmsMessages() {
     _messageList.value = emptyList()
+    APP.DATA_STORE_HANDLE?.clearTable()
   }
 }

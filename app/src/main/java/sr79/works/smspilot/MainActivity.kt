@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import sr79.works.smspilot.APP.DATA_STORE_HANDLE
 import sr79.works.smspilot.APP.detector
 import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
@@ -32,7 +33,10 @@ object APP {
   var SMS_LIST: MutableList<Thread> = mutableListOf()
 
   // SMS Map (Map of Threads to their address).
-  var SMS_LIST_MAP: MutableMap<String, Thread> = HashMap<String, Thread>()
+  var SMS_LIST_MAP: MutableMap<String, Thread> = HashMap()
+
+  // Handle for data store.
+  var DATA_STORE_HANDLE: DataStore? = null
 }
 
 // Landing Page.
@@ -57,7 +61,12 @@ class MainActivity : ComponentActivity() {
     /*
      * Load the detector.
      */
-    APP.detector = AppHandler.setupDetector(this)
+    detector = AppHandler.setupDetector(this)
+
+    /*
+     * Load the Database and Data store handle.
+     */
+    DATA_STORE_HANDLE = DataStore(this)
 
     val loadPermission = AppHandler.checkSmsReadPermission(this)
 

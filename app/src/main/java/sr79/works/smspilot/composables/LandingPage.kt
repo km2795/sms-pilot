@@ -28,9 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sr79.works.smspilot.APP
-import sr79.works.smspilot.DataStore
-import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.AppHandler
+import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
 import java.nio.MappedByteBuffer
 
@@ -64,7 +63,7 @@ fun LandingPage(
         landingPageViewModel.loadSmsMessages()
 
         // Update the "READ YES" permission to the data store.
-        DataStore().updateSmsReadPermission(context, true)
+        APP.DATA_STORE_HANDLE?.updateSmsReadPermission(context, true)
       } else {
         // User denied permission.
         onShowPermissionButton(true)

@@ -19,7 +19,7 @@ object AppHandler {
    * @return SMS read permission.
    */
   fun checkSmsReadPermission(context: Context): Boolean {
-    return DataStore().getSmsReadPermission(context)
+    return APP.DATA_STORE_HANDLE?.getSmsReadPermission(context) ?: false
   }
 
   /**
@@ -29,7 +29,7 @@ object AppHandler {
    * @param context Context of the application.
    */
   fun updateSmsReadPermission(context: Context, permission: Boolean) {
-    DataStore().updateSmsReadPermission(context, permission)
+    APP.DATA_STORE_HANDLE?.updateSmsReadPermission(context, permission)
   }
 
   fun setupDetector(activity: Activity): MappedByteBuffer? {

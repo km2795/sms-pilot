@@ -20,7 +20,7 @@ class ThreadActivity : AppCompatActivity() {
 
         if (sms != null) {
           // Top Bar Title changes to Address of the Message.
-          var topBarName = sms.getAddress()
+          val topBarName = sms.getAddress()
 
           // Load the message list.
           ThreadPage(
