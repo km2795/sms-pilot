@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.compose)
+  id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20"
 }
 
 android {
@@ -48,6 +49,7 @@ android {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("com.github.rholder:snowball-stemmer:1.3.0.581.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")

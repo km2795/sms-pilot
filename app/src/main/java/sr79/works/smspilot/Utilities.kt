@@ -1,18 +1,20 @@
 package sr79.works.smspilot
 
 import android.content.Context
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
 import android.util.Log
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import java.text.SimpleDateFormat
 
 
 object Utilities {
@@ -21,6 +23,32 @@ object Utilities {
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   )
+
+  /**
+   * Serialize any object (Class/object should be @Serializable
+   * annotated).
+   *
+   * @param value Value to serialize.
+   * @return Serialized value.
+   */
+  inline fun <reified T> serialize(value: T): String {
+    return Json.encodeToString(value)
+  }
+
+  /**
+   * Deserialize any object (Class/object should be @Serializable
+   * annotated).
+   *
+   * @param value Value to deserialize.
+   * @return Deserialized value.
+   */
+  inline fun <reified T> deserialize(value: String): T? {
+    return try {
+      Json.decodeFromString<T>(value)
+    } catch (e: Exception) {
+      return null
+    }
+  }
 
   /**
    * Write a file to the app's data store.
