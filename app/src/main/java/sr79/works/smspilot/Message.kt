@@ -1,8 +1,11 @@
 package sr79.works.smspilot
 
+import kotlinx.serialization.Serializable
+
 /**
  * SMS message unit (single message).
  */
+@Serializable
 class Message (
   private var id: Long = 0,
   private var address: String = "",

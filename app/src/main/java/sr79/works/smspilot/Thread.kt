@@ -1,9 +1,12 @@
 package sr79.works.smspilot
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * List of Messages with same address.
  */
+@Serializable
 class Thread(
   private var messageList: MutableSet<Message>? = mutableSetOf<Message>(),
   private var id: Long = 0,
