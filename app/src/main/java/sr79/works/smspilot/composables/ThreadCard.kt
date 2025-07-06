@@ -34,6 +34,7 @@ import sr79.works.smspilot.ThreadActivity
 import sr79.works.smspilot.Utilities
 import java.nio.MappedByteBuffer
 
+
 @Composable
 fun ThreadCard(
   sms: Thread,
@@ -45,9 +46,17 @@ fun ThreadCard(
 
   ElevatedCard(
     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+
+    // When the 'ThreadCard' is clicked.
     onClick = {
+
+      // Create an intent to pass Thread Object to 'ThreadActivity'
       val intent = Intent(context, ThreadActivity::class.java)
-      intent.putExtra("THREAD_ID", sms.getAddress())
+
+      // @param {sms} is to be serialized.
+      intent.putExtra("thread", Utilities.serialize(sms))
+
+      // Start the 'ThreadActivity'.
       context.startActivity(intent)
     },
     modifier = Modifier.padding(5.dp)

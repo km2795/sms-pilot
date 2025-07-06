@@ -103,7 +103,6 @@ fun LandingPage(
 
         // Not needed essentially.
         landingPageViewModel.clearSmsMessages()
-        AppHandler.unLoadSmsList(APP.SMS_LIST_MAP, APP.SMS_LIST)
       }
     }
   }

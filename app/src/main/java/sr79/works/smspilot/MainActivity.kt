@@ -29,12 +29,6 @@ object APP {
   // Reference to the detector.
   var detector: MappedByteBuffer? = null
 
-  // SMS List (list of threads).
-  var SMS_LIST: MutableList<Thread> = mutableListOf()
-
-  // SMS Map (Map of Threads to their address).
-  var SMS_LIST_MAP: MutableMap<String, Thread> = HashMap()
-
   // Handle for data store.
   var DATA_STORE_HANDLE: DataStore? = null
 }
@@ -96,13 +90,18 @@ class MainActivity : ComponentActivity() {
     }
 
     setContent {
-      // Collect the message list from the ViewModel as a State.
+      // Collect the data objects from the ViewModel as states.
       val messageList by landingPageViewModel.messageList.collectAsState()
+      val threadList by landingPageViewModel.threadList.collectAsState()
+      val threadListMap by landingPageViewModel.threadListMap.collectAsState()
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           APP.APP_TITLE,
-          AppHandler.formAndGetThreadList(APP.SMS_LIST_MAP, messageList.toMutableList()),
+          AppHandler.formAndGetThreadList(
+            threadListMap.toMutableMap(),
+            messageList.toMutableList()
+          ),
           detector,
           showPermissionButton,
           onShowPermissionButton,

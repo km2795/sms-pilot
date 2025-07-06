@@ -12,8 +12,10 @@ class ThreadActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val threadId = intent.getStringExtra("THREAD_ID")
-    val sms = SmsListHandler.getThread(APP.SMS_LIST_MAP, threadId!!)
+    // Deserialize the Thread object.
+    val sms: Thread? = intent.getStringExtra("thread")?.let { value ->
+      Utilities.deserialize<Thread>(value)
+    }
 
     setContent {
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

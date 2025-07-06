@@ -144,10 +144,6 @@ object AppHandler {
     messageList: MutableList<Message>
   ): List<Thread> {
 
-    // To clear the list, to avoid redundancy.
-    // This is very inefficient.
-    SmsListHandler.clearList(smsMap, APP.SMS_LIST)
-
     for (message in messageList) {
       SmsListHandler.addMessage(smsMap, message)
     }

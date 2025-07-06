@@ -14,12 +14,21 @@ import kotlinx.coroutines.launch
 
 class LandingPageViewModel(private val application: Application): AndroidViewModel(application) {
 
-  // private message list for use by view model (internal use).
+  /*
+   * Private data objects for the view model.
+   */
+  private val _threadList = MutableStateFlow<List<Thread>>(emptyList())
+  private val _threadListMap = MutableStateFlow<HashMap<String, Thread>>(HashMap())
   private val _messageList = MutableStateFlow<List<Message>>(emptyList())
 
-  // Non-mutable list for external use.
+  /*
+   * Public modes of the view model's data objects.
+   */
+  val threadList: StateFlow<List<Thread>> = _threadList
+  val threadListMap: StateFlow<HashMap<String, Thread>> = _threadListMap
   val messageList: StateFlow<List<Message>> = _messageList
 
+  // Handle for content resolver. (Used specifically for content observer).
   private val contentResolver = application.contentResolver
 
   // For the content change. (For updates in the SMSs content provider).
