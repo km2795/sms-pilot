@@ -37,39 +37,12 @@ object AppHandler {
   }
 
   /**
-   * Load the SMS list.
-   *
-   * @param contentResolver Content resolver.
-   * @return SMS list.
-   */
-  fun getSmsList(contentResolver: ContentResolver) : MutableList<Message> {
-    return fetchSms(contentResolver)
-  }
-
-  /**
-   * Unload the SMS list.
-   */
-  fun unLoadSmsList(map: MutableMap<String, Thread>, list: MutableList<Thread>) {
-    SmsListHandler.clearList(map, list)
-  }
-
-  /**
-   * Wrapper around fetchSmsMessages.
-   *
-   * @param contentResolver Content resolver.
-   * @return SMS list.
-   */
-  private fun fetchSms(contentResolver: ContentResolver): MutableList<Message> {
-    return fetchSmsMessages(contentResolver).toMutableList()
-  }
-
-  /**
    * Returns the list of all the SMSs in the inbox ('inbox').
    *
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
-  private fun fetchSmsMessages(contentResolver: ContentResolver): List<Message> {
+  fun getSmsList(contentResolver: ContentResolver): List<Message> {
     val smsList: MutableList<Message> = mutableListOf<Message>()
 
     // List of URI to fetch from.
@@ -86,14 +59,6 @@ object AppHandler {
       Telephony.Sms.DATE,
       Telephony.Sms.TYPE
     )
-
-    // You can add a selection and selectionArgs to filter messages
-    // For works, to get messages from a specific number:
-    // val selection = "${Telephony.Sms.ADDRESS} = ?"
-    // val selectionArgs = arrayOf("1234567890")
-    // Or to get messages after a certain date:
-    // val selection = "${Telephony.Sms.DATE} > ?"
-    // val selectionArgs = arrayOf(specificTimestamp.toString())
 
     uriList.forEach { uri ->
       val cursor: Cursor? = contentResolver.query(

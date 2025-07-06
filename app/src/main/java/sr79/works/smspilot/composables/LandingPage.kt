@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import sr79.works.smspilot.APP
 import sr79.works.smspilot.AppHandler
 import sr79.works.smspilot.LandingPageViewModel
@@ -46,9 +45,6 @@ fun LandingPage(
 ) {
 
   val context = LocalContext.current
-
-  // ViewModel for the landing page.
-  val landingPageViewModel: LandingPageViewModel = viewModel()
   
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
