@@ -123,7 +123,7 @@ fun ThreadCard(
           }
           if (sms.hasSpamOrNot()) {
             Text(
-              "SPAM DETECTED",
+              "SPAM DETECTED: ${sms.getSpamCount()}",
               fontSize = 13.sp,
               color = Color.Red,
               modifier = Modifier

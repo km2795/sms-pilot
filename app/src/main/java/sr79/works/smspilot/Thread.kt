@@ -21,6 +21,11 @@ class Thread(
     this.address = address
     this.id = message.getId()
     this.updateThumbnailData(message)
+
+    // Update the Spam count, during initiation of the Thread.
+    if (message.getSpamOrNot()) {
+      this.hasSpam++
+    }
   }
 
   fun getThreadId(): Long {
@@ -142,8 +147,23 @@ class Thread(
    this.showDate = date
   }
 
+  /**
+   * Check if there is spam in Thread or not.
+   *
+   * @return Boolean Has spam or not.
+   */
   fun hasSpamOrNot(): Boolean {
     return this.hasSpam > 0
+  }
+
+  /**
+   * Return the count of spam messages in the
+   * thread.
+   *
+   * @return Int Count of spam messages.
+   */
+  fun getSpamCount(): Int {
+    return this.hasSpam
   }
 
 }
