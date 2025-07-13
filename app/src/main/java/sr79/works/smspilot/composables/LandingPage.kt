@@ -30,7 +30,6 @@ import sr79.works.smspilot.AppHandler
 import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
-import java.nio.MappedByteBuffer
 
 /**
  * First or Main screen of the App.
@@ -122,7 +121,6 @@ fun LandingPage(
     modifier = Modifier,
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-
     TopAppBar(
       title = { Text(appTitle) },
       navigationIcon = {},
@@ -136,10 +134,11 @@ fun LandingPage(
         )
       },
       colors = TopAppBarDefaults.topAppBarColors(
-        containerColor = Color.hsv(270f, 0.4f, 0.3f),
+        containerColor = Color.hsl(38.8f, 1f, 0.5f),
         titleContentColor = Color.hsv(0f, 0f, 1f)
       ),
-      modifier = Modifier.shadow(6.dp)
+      modifier = Modifier
+        .shadow(10.dp)
     )
     Column(
       modifier = Modifier
