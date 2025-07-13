@@ -1,7 +1,6 @@
 package sr79.works.smspilot.composables
 
 import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -20,19 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import sr79.works.smspilot.R
 import sr79.works.smspilot.Thread
 import sr79.works.smspilot.ThreadActivity
 import sr79.works.smspilot.Utilities
-import java.nio.MappedByteBuffer
 
 
 @Composable
@@ -58,21 +54,25 @@ fun ThreadCard(
       // Start the 'ThreadActivity'.
       context.startActivity(intent)
     },
-    modifier = Modifier.padding(5.dp)
+    modifier = Modifier.padding(8.dp)
   ) {
     Box(modifier = Modifier.background(Color.White)) {
       Row(modifier = Modifier.padding(10.dp)) {
         Box(modifier = Modifier) {
-          Image(
-            painter = painterResource(id = R.drawable.user_foreground),
-            contentDescription = "Contact Image",
-            contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.tint(Color.DarkGray),
+          Box(
             modifier = modifier
               .size(50.dp)
               .clip(CircleShape)
-              .border(0.5.dp, Color.Black, CircleShape)
-          )
+              .border(0.5.dp, Color.Black, CircleShape),
+            contentAlignment = Alignment.Center // Center the text
+          ) {
+            Text(
+              text = placeholderForContact(sms.getAddress()),
+              fontSize = 24.sp,
+              fontWeight = FontWeight.Normal,
+              color = Color.Black
+            )
+          }
         }
         Column(modifier = Modifier.fillMaxWidth()) {
           Row(
@@ -81,7 +81,10 @@ fun ThreadCard(
           ) {
             Text(
               sms.getAddress(),
-              modifier.padding(horizontal = 15.dp, vertical = 3.dp)
+              fontSize = 15.sp,
+              fontWeight = FontWeight.SemiBold,
+              modifier = Modifier
+                .padding(horizontal = 15.dp, vertical = 3.dp)
             )
             Text(
               Utilities.modifyDateField(sms.getShowDate().toString(), false),
@@ -102,20 +105,23 @@ fun ThreadCard(
                 .padding(horizontal = 15.dp, vertical = 3.dp)
                 .weight(8f),
               maxLines = 2,
-              overflow = TextOverflow.Ellipsis
+              overflow = TextOverflow.Ellipsis,
+              fontStyle = FontStyle.Italic,
+              letterSpacing = 0.5.sp
             )
             Spacer(modifier = Modifier.weight(1f))
             Box(modifier = Modifier.weight(1f)) {
               Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                  .size(20.dp)
+                  .size(22.dp)
                   .clip(CircleShape)
-                  .border(1.dp, Color.Black, CircleShape)
+                  .border(0.5.dp, Color.Black, CircleShape)
               ) {
                 Text(
                   sms.getThreadSize().toString(),
-                  fontSize = 13.sp
+                  fontSize = 12.sp,
+                  fontWeight = FontWeight.SemiBold
                 )
               }
             }
@@ -124,6 +130,7 @@ fun ThreadCard(
             Text(
               "SPAM DETECTED: ${sms.getSpamCount()}",
               fontSize = 13.sp,
+              fontWeight = FontWeight.SemiBold,
               color = Color.Red,
               modifier = Modifier
                 .padding(horizontal = 15.dp, vertical = 3.dp)
@@ -132,5 +139,17 @@ fun ThreadCard(
         }
       }
     }
+  }
+}
+
+fun placeholderForContact(text: String): String {
+  val numberPattern = "^(\\+\\d{1,3}[- ]?)?\\d+$".toRegex()
+
+  // It's a number match.
+  return if (text.matches(numberPattern)) {
+    "#"
+  } else {
+    // Text match. (other than number).
+    text.firstOrNull()?.uppercaseChar().toString()
   }
 }
