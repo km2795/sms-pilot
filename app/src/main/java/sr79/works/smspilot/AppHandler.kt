@@ -3,7 +3,6 @@ package sr79.works.smspilot
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
-import android.database.Cursor
 import android.provider.Telephony
 import java.nio.MappedByteBuffer
 
@@ -57,7 +56,7 @@ object AppHandler {
     contentResolver: ContentResolver
   ): List<Message> {
 
-    val messageList: MutableList<Message> = mutableListOf<Message>()
+    val messageList = mutableListOf<Message>()
 
     // List of URI to fetch from.
     val uriList = listOf(
@@ -75,17 +74,15 @@ object AppHandler {
     )
 
     uriList.forEach { uri ->
-      val cursor: Cursor? = contentResolver.query(
+      contentResolver.query(
         uri,
         projection,
         null,
         null,
         "${Telephony.Sms.DATE} DESC"
-      )
-
-      cursor?.use {
+      )?.use { it ->
         if (it.moveToFirst()) {
-          val idIndex = it.getColumnIndex(Telephony.Sms._ID)
+          val idIndex = it.getColumnIndexOrThrow(Telephony.Sms._ID)
           val addressIndex = it.getColumnIndex(Telephony.Sms.ADDRESS)
           val bodyIndex = it.getColumnIndex(Telephony.Sms.BODY)
           val dateIndex = it.getColumnIndex(Telephony.Sms.DATE)
@@ -128,77 +125,12 @@ object AppHandler {
   ): List<Thread> {
 
     val threadMap: MutableMap<String, Thread> = mutableMapOf()
+    val messages = getMessageList(detector, contentResolver)
 
-    // List of URI to fetch from.
-    val uriList = listOf(
-      Telephony.Sms.Inbox.CONTENT_URI,  // Inbox.
-      Telephony.Sms.Sent.CONTENT_URI    // Sent.
-    )
-
-    // Columns to retrieve
-    val projection = arrayOf(
-      Telephony.Sms._ID,
-      Telephony.Sms.ADDRESS,
-      Telephony.Sms.BODY,
-      Telephony.Sms.DATE,
-      Telephony.Sms.TYPE
-    )
-
-    uriList.forEach { uri ->
-      val cursor: Cursor? = contentResolver.query(
-        uri,
-        projection,
-        null,
-        null,
-        "${Telephony.Sms.DATE} DESC"
-      )
-
-      cursor?.use {
-        if (it.moveToFirst()) {
-          val idIndex = it.getColumnIndex(Telephony.Sms._ID)
-          val addressIndex = it.getColumnIndex(Telephony.Sms.ADDRESS)
-          val bodyIndex = it.getColumnIndex(Telephony.Sms.BODY)
-          val dateIndex = it.getColumnIndex(Telephony.Sms.DATE)
-          val typeIndex = it.getColumnIndex(Telephony.Sms.TYPE)
-
-          do {
-            val id = it.getLong(idIndex)
-            val address = it.getString(addressIndex)
-            val body = it.getString(bodyIndex)
-            val date = it.getLong(dateIndex) // Timestamp in milliseconds
-            val type = it.getInt(typeIndex)
-
-            // Basic null checks, especially for address which can sometimes be null
-            if (address != null && body != null) {
-
-              // Add the message.
-              val message =
-                Message(id, address, body, date, type, spamOrNot(detector, body))
-              ThreadListHandler.addMessage(threadMap, message)
-            }
-
-          } while (it.moveToNext())
-        }
-      }
+    messages.forEach { message ->
+      ThreadListHandler.addMessage(threadMap, message)
     }
 
     return ThreadListHandler.getThreadList(threadMap)
-  }
-
-  /**
-   * Convert the list of messages into a List of Threads.
-   *
-   * @param messageList List of messages.
-   * @return List of threads.
-   */
-  fun formAndGetThreadList(
-    smsMap: MutableMap<String, Thread>,
-    messageList: MutableList<Message>
-  ): List<Thread> {
-
-    for (message in messageList) {
-      ThreadListHandler.addMessage(smsMap, message)
-    }
-    return ThreadListHandler.getThreadList(smsMap)
   }
 }
