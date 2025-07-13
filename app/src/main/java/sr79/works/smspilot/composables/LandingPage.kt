@@ -70,7 +70,7 @@ fun LandingPage(
         onShowPermissionButton(false)
 
         // Load through the ViewModel.
-        landingPageViewModel.loadSmsMessages()
+        landingPageViewModel.loadThreads()
 
         // Update the "READ YES" permission to the data store.
         dataStore.updateSmsReadPermission(context, true)
@@ -96,7 +96,7 @@ fun LandingPage(
         AppHandler.updateSmsReadPermission(dataStore, context, true)
 
         // Load through ViewModel.
-        landingPageViewModel.loadSmsMessages()
+        landingPageViewModel.loadThreads()
 
         // Hide the permission button.
         onShowPermissionButton(false)
@@ -130,15 +130,14 @@ fun LandingPage(
           dataStore,
           onShowExtraTopActionMenu = { showExtraTopActionMenu = it },
           onShowPermissionButton,
-          modifier = modifier
+          modifier = Modifier.background(Color.White)
         )
       },
       colors = TopAppBarDefaults.topAppBarColors(
         containerColor = Color.hsl(38.8f, 1f, 0.5f),
         titleContentColor = Color.hsv(0f, 0f, 1f)
       ),
-      modifier = Modifier
-        .shadow(10.dp)
+      modifier = Modifier.shadow(10.dp)
     )
     Column(
       modifier = Modifier

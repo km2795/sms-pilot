@@ -1,17 +1,22 @@
 package sr79.works.smspilot
 
+import android.Manifest
 import android.app.Application
+import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.nio.MappedByteBuffer
 
@@ -25,15 +30,24 @@ class LandingPageViewModel(
    * Private data objects for the view model.
    */
   private val _threadList = MutableStateFlow<List<Thread>>(emptyList())
-  private val _threadListMap = MutableStateFlow<HashMap<String, Thread>>(HashMap())
   private val _messageList = MutableStateFlow<List<Message>>(emptyList())
 
   /*
    * Public modes of the view model's data objects.
    */
-  val threadList: StateFlow<List<Thread>> = _threadList
-  val threadListMap: StateFlow<HashMap<String, Thread>> = _threadListMap
+  val threadList: StateFlow<List<Thread>> = _threadList.asStateFlow()
   val messageList: StateFlow<List<Message>> = _messageList
+
+  // For controlling visibility of the permission button.
+  private val _showPermissionButton = MutableStateFlow(true)
+  val showPermissionButton: StateFlow<Boolean> = _showPermissionButton.asStateFlow()
+
+  fun updateShowPermissionButton(show: Boolean) {
+    _showPermissionButton.value = show
+    if (show) {
+      clearSmsMessages()
+    }
+  }
 
   // Handle for content resolver. (Used specifically for content observer).
   private val contentResolver = application.contentResolver
@@ -62,16 +76,62 @@ class LandingPageViewModel(
       true,
       messageObserver
     )
+
+    load()
   }
 
   /**
-   * For initial loading of the message list.
+   * Check if Read permission is already stored.
+   * Load the list as per permission.
    */
-  fun loadSmsMessages() {
+  private fun load() {
     viewModelScope.launch {
-      _messageList.value =
-        dataStore.loadMessageList()
-          ?: AppHandler.getMessageList(detector, contentResolver)
+
+      // Check permission from data store.
+      val permission = checkPermission()
+
+      /*
+       * In case user disables the permission or the system revokes the
+       * permission outside the app. This would potentially render the
+       * app to crash. Adding a check at the start to see if the permission
+       * in the data store is true and system-wide permission is false.
+       * If so, re-orient the app to the permission screen.
+       */
+      if (permission
+        &&
+        (ContextCompat.checkSelfPermission(
+          application,
+          Manifest.permission.READ_SMS
+        ) != PackageManager.PERMISSION_GRANTED)
+      ) {
+        // Show the permission button.
+        _showPermissionButton.value = true
+        clearSmsMessages()
+      } else if (permission) {
+
+        // Load the Threads.
+        _showPermissionButton.value = false
+        loadThreads()
+      } else {
+
+        // In case, permission was stored.
+        _showPermissionButton.value = true
+      }
+    }
+  }
+
+  private fun checkPermission(): Boolean {
+    // Check the permission (if stored already).
+    return AppHandler.checkSmsReadPermission(dataStore, application)
+  }
+
+  /**
+   * Load the Threads.
+   */
+  fun loadThreads() {
+    viewModelScope.launch(Dispatchers.IO) {
+      val threads = AppHandler.getThreadList(detector, application.contentResolver)
+      _threadList.value = threads
     }
   }
 
