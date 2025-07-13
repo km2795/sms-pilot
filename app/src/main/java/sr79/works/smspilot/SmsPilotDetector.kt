@@ -12,15 +12,15 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
 /**
- * Loads the model from the cache.
+ * Loads the model (detector) from the cache.
  *
  * @param activity  Activity context.
- * @param modelPath  Model's path in directory.
+ * @param detectorPath  Model's path in directory.
  */
-fun loadModelFile(activity: Activity, modelPath: String): MappedByteBuffer? {
+fun loadDetector(activity: Activity, detectorPath: String): MappedByteBuffer? {
   // Try to load the model.
   try {
-    val assetFileDescriptor: AssetFileDescriptor = activity.assets.openFd(modelPath)
+    val assetFileDescriptor: AssetFileDescriptor = activity.assets.openFd(detectorPath)
     val inputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
     val fileChannel: FileChannel = inputStream.channel
     val startOffset: Long = assetFileDescriptor.startOffset
@@ -78,16 +78,16 @@ fun runInference(model: MappedByteBuffer, inputData: String): Float {
 /**
  * Wrapper function for the runInference.
  *
- * @param modelFile Model file.
+ * @param detector Model file.
  * @param inputData Input data.
  * @return Verdict Boolean
  */
-fun spamOrNot(modelFile: MappedByteBuffer?, inputData: String): Boolean {
-  if (modelFile == null) {
+fun spamOrNot(detector: MappedByteBuffer?, inputData: String): Boolean {
+  if (detector == null) {
     return false
   }
 
-  val verdict = runInference(modelFile, inputData)
+  val verdict = runInference(detector, inputData)
 
   // In case of error.
   return if (verdict > 0.5f) {

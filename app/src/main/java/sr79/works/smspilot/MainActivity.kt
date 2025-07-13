@@ -21,21 +21,19 @@ import java.nio.MappedByteBuffer
 // Landing Page.
 class MainActivity : ComponentActivity() {
 
+  // App's title.
   private val appTitle = "SMS Pilot"
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    /*
-     * Load the detector.
-     */
+     //Load the detector.
     val detector: MappedByteBuffer? = AppHandler.setupDetector(this)
 
-    /*
-     * Load the Database and Data store handle.
-     */
+    // Load the Database and Data store handle.
     val dataStore: DataStore = DataStore(this)
 
+    //Load the permission from the data store.
     val loadPermission = AppHandler.checkSmsReadPermission(dataStore,this)
 
     // ViewModel for managing the Landing Page (or Landing Screen).

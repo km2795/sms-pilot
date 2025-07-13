@@ -24,7 +24,7 @@ import java.nio.MappedByteBuffer
 @Composable
 fun MessageCard(
   sms: Message,
-  modelFile: MappedByteBuffer?,
+  detector: MappedByteBuffer?,
   modifier: Modifier = Modifier
 ) {
   Row(
@@ -64,7 +64,7 @@ fun MessageCard(
             )
 
             // Show the verdict of the message. (Spam or not).
-          if (spamOrNot(modelFile, sms.getBody())) {
+          if (spamOrNot(detector, sms.getBody())) {
             Text("SPAM", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Red)
           }
           }

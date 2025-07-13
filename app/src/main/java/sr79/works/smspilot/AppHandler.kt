@@ -18,7 +18,11 @@ object AppHandler {
    * @param context Context of the application.
    * @return SMS read permission.
    */
-  fun checkSmsReadPermission(dataStore: DataStore, context: Context): Boolean {
+  fun checkSmsReadPermission(
+    dataStore: DataStore,
+    context: Context
+  ): Boolean {
+
     return dataStore.getSmsReadPermission(context) ?: false
   }
 
@@ -28,12 +32,17 @@ object AppHandler {
    * @param permission SMS read permission.
    * @param context Context of the application.
    */
-  fun updateSmsReadPermission(dataStore: DataStore, context: Context, permission: Boolean) {
+  fun updateSmsReadPermission(
+    dataStore: DataStore,
+    context: Context,
+    permission: Boolean
+  ) {
+
     dataStore.updateSmsReadPermission(context, permission)
   }
 
   fun setupDetector(activity: Activity): MappedByteBuffer? {
-    return loadModelFile(activity, "sms_spam_detector_model.tflite")
+    return loadDetector(activity, "sms_spam_detector_model.tflite")
   }
 
   /**
@@ -43,7 +52,11 @@ object AppHandler {
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
-  fun getMessageList(detector: MappedByteBuffer?, contentResolver: ContentResolver): List<Message> {
+  fun getMessageList(
+    detector: MappedByteBuffer?,
+    contentResolver: ContentResolver
+  ): List<Message> {
+
     val messageList: MutableList<Message> = mutableListOf<Message>()
 
     // List of URI to fetch from.
@@ -88,7 +101,9 @@ object AppHandler {
             // Basic null checks, especially for address which can sometimes be null
             if (address != null && body != null) {
               // Add the message.
-              messageList.add(Message(id, address, body, date, type, spamOrNot(detector, body)))
+              messageList.add(
+                Message(id, address, body, date, type, spamOrNot(detector, body))
+              )
             }
 
           } while (it.moveToNext())
@@ -107,7 +122,11 @@ object AppHandler {
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
-  fun getThreadList(detector: MappedByteBuffer?, contentResolver: ContentResolver): List<Thread> {
+  fun getThreadList(
+    detector: MappedByteBuffer?,
+    contentResolver: ContentResolver
+  ): List<Thread> {
+
     val threadMap: MutableMap<String, Thread> = mutableMapOf()
 
     // List of URI to fetch from.
@@ -151,9 +170,11 @@ object AppHandler {
 
             // Basic null checks, especially for address which can sometimes be null
             if (address != null && body != null) {
+
               // Add the message.
-              val message = Message(id, address, body, date, type, spamOrNot(detector, body))
-              SmsListHandler.addMessage(threadMap, message)
+              val message =
+                Message(id, address, body, date, type, spamOrNot(detector, body))
+              ThreadListHandler.addMessage(threadMap, message)
             }
 
           } while (it.moveToNext())
@@ -161,7 +182,7 @@ object AppHandler {
       }
     }
 
-    return SmsListHandler.getThreadList(threadMap)
+    return ThreadListHandler.getThreadList(threadMap)
   }
 
   /**
@@ -176,8 +197,8 @@ object AppHandler {
   ): List<Thread> {
 
     for (message in messageList) {
-      SmsListHandler.addMessage(smsMap, message)
+      ThreadListHandler.addMessage(smsMap, message)
     }
-    return SmsListHandler.getThreadList(smsMap)
+    return ThreadListHandler.getThreadList(smsMap)
   }
 }

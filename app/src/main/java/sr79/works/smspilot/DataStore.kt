@@ -65,7 +65,15 @@ class DataStore(context: Context): SQLiteOpenHelper(
    * @param type Type of the message.
    * @param spam Spam status of the message.
    */
-  fun storeMessage(id: Long, body: String, address: String, date: Long, type: Int, spam: Int) {
+  fun storeMessage(
+    id: Long,
+    body: String,
+    address: String,
+    date: Long,
+    type: Int,
+    spam: Int
+  ) {
+
     val entryMap = ContentValues().apply {
       put(COLUMN_NAME_ID, id)
       put(COLUMN_NAME_BODY, body)
@@ -174,7 +182,12 @@ class DataStore(context: Context): SQLiteOpenHelper(
     db.execSQL(CREATE_TABLE)
   }
 
-  override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+  override fun onUpgrade(
+    db: SQLiteDatabase,
+    oldVersion: Int,
+    newVersion: Int
+  ) {
+
     db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
     onCreate(db)
   }
@@ -184,7 +197,11 @@ class DataStore(context: Context): SQLiteOpenHelper(
    *
    * @param permission SMS read permission.
    */
-  fun updateSmsReadPermission(context: Context, permission: Boolean) {
+  fun updateSmsReadPermission(
+    context: Context,
+    permission: Boolean
+  ) {
+
     SMS_READ_PERMISSION = permission
     Utilities.writeFile(
       context,

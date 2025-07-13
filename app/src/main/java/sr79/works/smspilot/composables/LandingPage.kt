@@ -32,13 +32,25 @@ import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
 import java.nio.MappedByteBuffer
 
+/**
+ * First or Main screen of the App.
+ *
+ * @param appTitle App's title.
+ * @param threadList A list of [Thread] objects representing the group of messages.
+ * @param dataStore App's data store (handler functions).
+ * @param detector Used for spam detection.
+ * @param showPermissionButton A boolean indicating whether the "Load SMS Messages" button (for permission request) should be visible.
+ * @param onShowPermissionButton Callback invoked to update the visibility of the permission button.
+ * @param landingPageViewModel [LandingPageViewModel] to handle logic related to the landing page.
+ * @param modifier
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandingPage(
   appTitle: String,
-  smsList: List<Thread>,
+  threadList: List<Thread>,
   dataStore: DataStore,
-  modelFile: MappedByteBuffer?,
+  detector: MappedByteBuffer?,
   showPermissionButton: Boolean,
   onShowPermissionButton: (Boolean) -> Unit,
   landingPageViewModel: LandingPageViewModel,
@@ -52,7 +64,10 @@ fun LandingPage(
 
   // ActivityResultLauncher for permission request
   val requestPermissionLauncher =
-    rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+    rememberLauncherForActivityResult(
+      ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+
       if (isGranted) {
         onShowPermissionButton(false)
 
@@ -104,7 +119,11 @@ fun LandingPage(
     }
   }
 
-  Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+  Column(
+    modifier = Modifier,
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+
     TopAppBar(
       title = { Text(appTitle) },
       navigationIcon = {},
@@ -134,7 +153,7 @@ fun LandingPage(
         Button(onClick = onRequestPermission) {
           Text("Load SMS Messages")
         }
-        if (smsList.isEmpty()) {
+        if (threadList.isEmpty()) {
           Text(
             "No SMS messages found or permission not granted.",
             modifier = Modifier.padding(16.dp)
@@ -142,8 +161,8 @@ fun LandingPage(
         }
       } else {
         ThreadList(
-          smsList,
-          modelFile,
+          threadList,
+          detector,
           modifier = Modifier
         )
       }

@@ -1,11 +1,12 @@
 package sr79.works.smspilot
 
 /**
- * Handler class for global SMS LIST.
+ * Handler class for maps and lists.
  */
-object SmsListHandler {
+object ThreadListHandler {
+
   /**
-   * Add message to a thread in the list.
+   * Add message to a Thread in the list.
    *
    * @param message Message to add.
    */
@@ -23,20 +24,7 @@ object SmsListHandler {
   }
 
   /**
-   * Return a thread from the list.
-   *
-   * @param address Address of the thread.
-   */
-  fun getThread(
-    smsMap: MutableMap<String, Thread>,
-    address: String
-  ): Thread? {
-
-    return smsMap[address]
-  }
-
-  /**
-   * Return the complete list.
+   * Return the complete Thread list.
    */
   fun getThreadList(
     smsMap: MutableMap<String, Thread>
@@ -53,13 +41,13 @@ object SmsListHandler {
    * Clear the lists.
    */
   fun clearList(
-    smsMap: MutableMap<String, Thread>,
-    smsList: MutableList<Thread>
+    threadMap: MutableMap<String, Thread>,
+    threadList: MutableList<Thread>
   ) {
     // Clear the thread list.
-    smsList.clear()
+    threadList.clear()
 
     // Clear the thread map.
-    smsMap.clear()
+    threadMap.clear()
   }
 }

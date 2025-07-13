@@ -69,7 +69,9 @@ class LandingPageViewModel(
    */
   fun loadSmsMessages() {
     viewModelScope.launch {
-      _messageList.value = dataStore.loadMessageList() ?: AppHandler.getMessageList(detector, contentResolver)
+      _messageList.value =
+        dataStore.loadMessageList()
+          ?: AppHandler.getMessageList(detector, contentResolver)
     }
   }
 
@@ -79,7 +81,9 @@ class LandingPageViewModel(
   fun refreshSmsMessages() {
     // Should fetch and check for updates.
     viewModelScope.launch {
-      _messageList.value = dataStore.loadMessageList() ?: AppHandler.getMessageList(detector, contentResolver)
+      _messageList.value =
+        dataStore.loadMessageList()
+          ?: AppHandler.getMessageList(detector, contentResolver)
     }
   }
 

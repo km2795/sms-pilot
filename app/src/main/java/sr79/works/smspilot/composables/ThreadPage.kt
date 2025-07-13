@@ -21,8 +21,8 @@ import java.nio.MappedByteBuffer
 @Composable
 fun ThreadPage(
   topBarName: String,
-  modelFile: MappedByteBuffer?,
-  smsList: List<Message>,
+  detector: MappedByteBuffer?,
+  messageList: List<Message>,
   modifier: Modifier = Modifier
 ) {
 
@@ -46,8 +46,8 @@ fun ThreadPage(
       modifier = Modifier.shadow(6.dp)
     )
     MessageList(
-      smsList,
-      modelFile,
+      messageList,
+      detector,
       modifier = Modifier
     )
   }

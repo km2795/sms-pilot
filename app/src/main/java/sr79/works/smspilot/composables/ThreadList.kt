@@ -16,8 +16,8 @@ import java.nio.MappedByteBuffer
 // Simple Composable to display the SMS list and a button to request permission
 @Composable
 fun ThreadList(
-  smsList: List<Thread>,
-  modelFile: MappedByteBuffer?,
+  threadList: List<Thread>,
+  detector: MappedByteBuffer?,
   modifier: Modifier = Modifier
 ) {
   Column(
@@ -32,8 +32,8 @@ fun ThreadList(
       .verticalScroll(rememberScrollState())
   ) {
     // Load each Thread.
-    smsList.forEach { sms ->
-      ThreadCard(sms, modelFile, modifier)
+    threadList.forEach { message ->
+      ThreadCard(message, detector, modifier)
     }
   }
 }
