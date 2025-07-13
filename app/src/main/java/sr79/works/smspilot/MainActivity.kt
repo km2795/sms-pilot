@@ -15,39 +15,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import sr79.works.smspilot.APP.DATA_STORE_HANDLE
-import sr79.works.smspilot.APP.detector
 import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
 
 
-// Globals.
-object APP {
-  // Title of the Top Action Bar (in the main activity).
-  const val APP_TITLE = "SMS Pilot"
-
-  // Reference to the detector.
-  var detector: MappedByteBuffer? = null
-
-  // Handle for data store.
-  var DATA_STORE_HANDLE: DataStore? = null
-}
-
 // Landing Page.
 class MainActivity : ComponentActivity() {
 
-  // ViewModel for managing the Landing Page (or Landing Screen).
-  private val landingPageViewModel: LandingPageViewModel by viewModels()
-
-  // For controlling visibility of the permission button.
-  private var showPermissionButton by mutableStateOf(true)
-
-  val onShowPermissionButton = { show: Boolean ->
-    showPermissionButton = show
-    if (show) {
-      landingPageViewModel.clearSmsMessages()
-    }
-  }
+  private val appTitle = "SMS Pilot"
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -55,14 +30,29 @@ class MainActivity : ComponentActivity() {
     /*
      * Load the detector.
      */
-    detector = AppHandler.setupDetector(this)
+    val detector: MappedByteBuffer? = AppHandler.setupDetector(this)
 
     /*
      * Load the Database and Data store handle.
      */
-    DATA_STORE_HANDLE = DataStore(this)
+    val dataStore: DataStore = DataStore(this)
 
-    val loadPermission = AppHandler.checkSmsReadPermission(this)
+    val loadPermission = AppHandler.checkSmsReadPermission(dataStore,this)
+
+    // ViewModel for managing the Landing Page (or Landing Screen).
+    val landingPageViewModel by viewModels<LandingPageViewModel> {
+      LandingPageViewModel(application, dataStore, detector)
+    }
+
+    // For controlling visibility of the permission button.
+    var showPermissionButton by mutableStateOf(true)
+
+    val onShowPermissionButton = { show: Boolean ->
+      showPermissionButton = show
+      if (show) {
+        landingPageViewModel.clearSmsMessages()
+      }
+    }
 
     /*
      * In case user disables the permission or the system revokes the
@@ -97,11 +87,12 @@ class MainActivity : ComponentActivity() {
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
-          APP.APP_TITLE,
+          appTitle,
           AppHandler.formAndGetThreadList(
             threadListMap.toMutableMap(),
             messageList.toMutableList()
           ),
+          dataStore,
           detector,
           showPermissionButton,
           onShowPermissionButton,

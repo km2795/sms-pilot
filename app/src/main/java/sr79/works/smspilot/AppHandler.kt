@@ -18,8 +18,8 @@ object AppHandler {
    * @param context Context of the application.
    * @return SMS read permission.
    */
-  fun checkSmsReadPermission(context: Context): Boolean {
-    return APP.DATA_STORE_HANDLE?.getSmsReadPermission(context) ?: false
+  fun checkSmsReadPermission(dataStore: DataStore, context: Context): Boolean {
+    return dataStore.getSmsReadPermission(context) ?: false
   }
 
   /**
@@ -28,8 +28,8 @@ object AppHandler {
    * @param permission SMS read permission.
    * @param context Context of the application.
    */
-  fun updateSmsReadPermission(context: Context, permission: Boolean) {
-    APP.DATA_STORE_HANDLE?.updateSmsReadPermission(context, permission)
+  fun updateSmsReadPermission(dataStore: DataStore, context: Context, permission: Boolean) {
+    dataStore.updateSmsReadPermission(context, permission)
   }
 
   fun setupDetector(activity: Activity): MappedByteBuffer? {
@@ -42,7 +42,7 @@ object AppHandler {
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
-  fun getSmsList(contentResolver: ContentResolver): List<Message> {
+  fun getSmsList(detector: MappedByteBuffer?, contentResolver: ContentResolver): List<Message> {
     val smsList: MutableList<Message> = mutableListOf<Message>()
 
     // List of URI to fetch from.
@@ -87,7 +87,7 @@ object AppHandler {
             // Basic null checks, especially for address which can sometimes be null
             if (address != null && body != null) {
               // Add the message.
-              smsList.add(Message(id, address, body, date, type, spamOrNot(APP.detector, body)))
+              smsList.add(Message(id, address, body, date, type, spamOrNot(detector, body)))
             }
 
           } while (it.moveToNext())

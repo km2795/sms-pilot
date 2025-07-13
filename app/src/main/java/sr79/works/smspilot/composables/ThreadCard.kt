@@ -55,6 +55,7 @@ fun ThreadCard(
 
       // @param {sms} is to be serialized.
       intent.putExtra("thread", Utilities.serialize(sms))
+      intent.putExtra("detector", Utilities.serialize(modelFile))
 
       // Start the 'ThreadActivity'.
       context.startActivity(intent)

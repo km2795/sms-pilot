@@ -26,8 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import sr79.works.smspilot.APP
 import sr79.works.smspilot.AppHandler
+import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
 import java.nio.MappedByteBuffer
@@ -37,6 +37,7 @@ import java.nio.MappedByteBuffer
 fun LandingPage(
   appTitle: String,
   smsList: List<Thread>,
+  dataStore: DataStore,
   modelFile: MappedByteBuffer?,
   showPermissionButton: Boolean,
   onShowPermissionButton: (Boolean) -> Unit,
@@ -59,13 +60,13 @@ fun LandingPage(
         landingPageViewModel.loadSmsMessages()
 
         // Update the "READ YES" permission to the data store.
-        APP.DATA_STORE_HANDLE?.updateSmsReadPermission(context, true)
+        dataStore.updateSmsReadPermission(context, true)
       } else {
         // User denied permission.
         onShowPermissionButton(true)
 
         // Update the "READ NO" permission to the data store.
-        AppHandler.updateSmsReadPermission(context, false)
+        AppHandler.updateSmsReadPermission(dataStore, context, false)
 
         // Not essentially required.
         landingPageViewModel.clearSmsMessages()
@@ -79,7 +80,7 @@ fun LandingPage(
         Manifest.permission.READ_SMS
       ) == PackageManager.PERMISSION_GRANTED -> {
         // Update the "READ YES" permission to the data store.
-        AppHandler.updateSmsReadPermission(context, true)
+        AppHandler.updateSmsReadPermission(dataStore, context, true)
 
         // Load through ViewModel.
         landingPageViewModel.loadSmsMessages()
@@ -89,7 +90,7 @@ fun LandingPage(
       }
       else -> {
         // Update the "READ NO" permission to the data store.
-        AppHandler.updateSmsReadPermission(context, false)
+        AppHandler.updateSmsReadPermission(dataStore, context, false)
 
         // Show the permission dialog.
         requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
@@ -110,6 +111,7 @@ fun LandingPage(
       actions = {
         TopBarActions(
           showMenu = showExtraTopActionMenu,
+          dataStore,
           onShowExtraTopActionMenu = { showExtraTopActionMenu = it },
           onShowPermissionButton,
           modifier = modifier

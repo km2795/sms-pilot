@@ -7,12 +7,19 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.nio.MappedByteBuffer
 
-class LandingPageViewModel(private val application: Application): AndroidViewModel(application) {
+class LandingPageViewModel(
+  private val application: Application,
+  private val dataStore: DataStore,
+  private val detector: MappedByteBuffer?
+): ViewModelProvider.Factory, AndroidViewModel(application) {
 
   /*
    * Private data objects for the view model.
@@ -30,6 +37,14 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
 
   // Handle for content resolver. (Used specifically for content observer).
   private val contentResolver = application.contentResolver
+
+  // For implementing the ViewModel factory.
+  override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    if (modelClass.isAssignableFrom(LandingPageViewModel::class.java)) {
+      return LandingPageViewModel(application, dataStore, detector) as T
+    }
+    throw IllegalArgumentException("Unknown ViewModel class")
+  }
 
   // For the content change. (For updates in the SMSs content provider).
   private val messageObserver = object: ContentObserver(Handler(Looper.getMainLooper())) {
@@ -54,7 +69,7 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
    */
   fun loadSmsMessages() {
     viewModelScope.launch {
-      _messageList.value = APP.DATA_STORE_HANDLE?.loadMessageList() ?: AppHandler.getSmsList(contentResolver)
+      _messageList.value = dataStore.loadMessageList() ?: AppHandler.getSmsList(detector, contentResolver)
     }
   }
 
@@ -64,7 +79,7 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
   fun refreshSmsMessages() {
     // Should fetch and check for updates.
     viewModelScope.launch {
-      _messageList.value = APP.DATA_STORE_HANDLE?.loadMessageList() ?: AppHandler.getSmsList(contentResolver)
+      _messageList.value = dataStore.loadMessageList() ?: AppHandler.getSmsList(detector, contentResolver)
     }
   }
 
@@ -73,6 +88,6 @@ class LandingPageViewModel(private val application: Application): AndroidViewMod
    */
   fun clearSmsMessages() {
     _messageList.value = emptyList()
-    APP.DATA_STORE_HANDLE?.clearTable()
+    dataStore.clearTable()
   }
 }
