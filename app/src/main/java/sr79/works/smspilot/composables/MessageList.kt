@@ -14,13 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import java.nio.MappedByteBuffer
 
 // Simple Composable to display the SMS list and a button to request permission
 @Composable
 fun MessageList(
   messageList: List<Message>,
-  detector: MappedByteBuffer?,
   modifier: Modifier = Modifier
 ) {
 
@@ -43,8 +41,8 @@ fun MessageList(
         .verticalScroll(rememberScrollState())
     ) {
       // Load each Thread.
-      messageList.forEach { sms ->
-        MessageCard(sms, detector, modifier)
+      messageList.forEach { message ->
+        MessageCard(message, modifier)
       }
     }
   }

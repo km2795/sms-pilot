@@ -38,7 +38,6 @@ import java.nio.MappedByteBuffer
 @Composable
 fun ThreadCard(
   sms: Thread,
-  detector: MappedByteBuffer?,
   modifier: Modifier = Modifier
 ) {
   val smsBody: String = sms.getBodyThumbnail()
@@ -55,7 +54,6 @@ fun ThreadCard(
 
       // @param {sms} is to be serialized.
       intent.putExtra("thread", Utilities.serialize(sms))
-      intent.putExtra("detector", Utilities.serialize(detector))
 
       // Start the 'ThreadActivity'.
       context.startActivity(intent)

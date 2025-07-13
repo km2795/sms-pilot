@@ -19,12 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.nio.MappedByteBuffer
 
 @Composable
 fun MessageCard(
-  sms: Message,
-  detector: MappedByteBuffer?,
+  message: Message,
   modifier: Modifier = Modifier
 ) {
   Row(
@@ -33,7 +31,7 @@ fun MessageCard(
       .padding(vertical = 4.dp, horizontal = 8.dp),
 
     // Arrangement of the children component.
-    horizontalArrangement = if (sms.getType() == 1) Arrangement.Start else Arrangement.End
+    horizontalArrangement = if (message.getType() == 1) Arrangement.Start else Arrangement.End
   ) {
     // To limit the size up to 75% of the parent component.
     BoxWithConstraints {
@@ -53,18 +51,18 @@ fun MessageCard(
             horizontalAlignment = Alignment.End
           ) {
             Text(
-            sms.getBody(),
+            message.getBody(),
               fontSize = 14.sp,
               modifier = Modifier.padding(end = 20.dp)
             )
             Text(
-            Utilities.modifyDateField(sms.getDate().toString(), false),
+            Utilities.modifyDateField(message.getDate().toString(), false),
               fontSize = 10.sp,
               color = Color.Gray
             )
 
             // Show the verdict of the message. (Spam or not).
-          if (spamOrNot(detector, sms.getBody())) {
+          if (message.getSpamOrNot()) {
             Text("SPAM", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Red)
           }
           }

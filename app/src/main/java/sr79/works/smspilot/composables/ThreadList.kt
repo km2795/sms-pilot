@@ -17,7 +17,6 @@ import java.nio.MappedByteBuffer
 @Composable
 fun ThreadList(
   threadList: List<Thread>,
-  detector: MappedByteBuffer?,
   modifier: Modifier = Modifier
 ) {
   Column(
@@ -33,7 +32,7 @@ fun ThreadList(
   ) {
     // Load each Thread.
     threadList.forEach { message ->
-      ThreadCard(message, detector, modifier)
+      ThreadCard(message, modifier)
     }
   }
 }

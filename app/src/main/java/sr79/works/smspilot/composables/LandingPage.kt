@@ -162,7 +162,6 @@ fun LandingPage(
       } else {
         ThreadList(
           threadList,
-          detector,
           modifier = Modifier
         )
       }
