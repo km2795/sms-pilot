@@ -50,7 +50,6 @@ fun LandingPage(
   appTitle: String,
   threadList: List<Thread>,
   dataStore: DataStore,
-  detector: MappedByteBuffer?,
   showPermissionButton: Boolean,
   onShowPermissionButton: (Boolean) -> Unit,
   landingPageViewModel: LandingPageViewModel,

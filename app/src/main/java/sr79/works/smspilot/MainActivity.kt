@@ -82,7 +82,6 @@ class MainActivity : ComponentActivity() {
           appTitle,
           AppHandler.getThreadList(detector, this.contentResolver),
           dataStore,
-          detector,
           showPermissionButton,
           onShowPermissionButton,
           landingPageViewModel,
