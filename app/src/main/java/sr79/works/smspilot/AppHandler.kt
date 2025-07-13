@@ -37,13 +37,14 @@ object AppHandler {
   }
 
   /**
-   * Returns the list of all the SMSs in the inbox ('inbox').
+   * Returns the list of all the SMSs in the inbox ('inbox', 'sent').
    *
+   * @param detector MappedByteBuffer (Spam detector).
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
-  fun getSmsList(detector: MappedByteBuffer?, contentResolver: ContentResolver): List<Message> {
-    val smsList: MutableList<Message> = mutableListOf<Message>()
+  fun getMessageList(detector: MappedByteBuffer?, contentResolver: ContentResolver): List<Message> {
+    val messageList: MutableList<Message> = mutableListOf<Message>()
 
     // List of URI to fetch from.
     val uriList = listOf(
@@ -87,7 +88,7 @@ object AppHandler {
             // Basic null checks, especially for address which can sometimes be null
             if (address != null && body != null) {
               // Add the message.
-              smsList.add(Message(id, address, body, date, type, spamOrNot(detector, body)))
+              messageList.add(Message(id, address, body, date, type, spamOrNot(detector, body)))
             }
 
           } while (it.moveToNext())
@@ -95,7 +96,72 @@ object AppHandler {
       }
     }
 
-    return smsList
+    return messageList
+  }
+
+  /**
+   * Returns the list of all the Threads.
+   * Each message is put into its respective Thread.
+   *
+   * @param detector MappedByteBuffer (Spam detector).
+   * @param contentResolver Content resolver.
+   * @return List of messages.
+   */
+  fun getThreadList(detector: MappedByteBuffer?, contentResolver: ContentResolver): List<Thread> {
+    val threadMap: MutableMap<String, Thread> = mutableMapOf()
+
+    // List of URI to fetch from.
+    val uriList = listOf(
+      Telephony.Sms.Inbox.CONTENT_URI,  // Inbox.
+      Telephony.Sms.Sent.CONTENT_URI    // Sent.
+    )
+
+    // Columns to retrieve
+    val projection = arrayOf(
+      Telephony.Sms._ID,
+      Telephony.Sms.ADDRESS,
+      Telephony.Sms.BODY,
+      Telephony.Sms.DATE,
+      Telephony.Sms.TYPE
+    )
+
+    uriList.forEach { uri ->
+      val cursor: Cursor? = contentResolver.query(
+        uri,
+        projection,
+        null,
+        null,
+        "${Telephony.Sms.DATE} DESC"
+      )
+
+      cursor?.use {
+        if (it.moveToFirst()) {
+          val idIndex = it.getColumnIndex(Telephony.Sms._ID)
+          val addressIndex = it.getColumnIndex(Telephony.Sms.ADDRESS)
+          val bodyIndex = it.getColumnIndex(Telephony.Sms.BODY)
+          val dateIndex = it.getColumnIndex(Telephony.Sms.DATE)
+          val typeIndex = it.getColumnIndex(Telephony.Sms.TYPE)
+
+          do {
+            val id = it.getLong(idIndex)
+            val address = it.getString(addressIndex)
+            val body = it.getString(bodyIndex)
+            val date = it.getLong(dateIndex) // Timestamp in milliseconds
+            val type = it.getInt(typeIndex)
+
+            // Basic null checks, especially for address which can sometimes be null
+            if (address != null && body != null) {
+              // Add the message.
+              val message = Message(id, address, body, date, type, spamOrNot(detector, body))
+              SmsListHandler.addMessage(threadMap, message)
+            }
+
+          } while (it.moveToNext())
+        }
+      }
+    }
+
+    return SmsListHandler.getThreadList(threadMap)
   }
 
   /**

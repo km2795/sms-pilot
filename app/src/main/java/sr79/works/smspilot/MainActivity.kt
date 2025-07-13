@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -80,18 +79,10 @@ class MainActivity : ComponentActivity() {
     }
 
     setContent {
-      // Collect the data objects from the ViewModel as states.
-      val messageList by landingPageViewModel.messageList.collectAsState()
-      val threadList by landingPageViewModel.threadList.collectAsState()
-      val threadListMap by landingPageViewModel.threadListMap.collectAsState()
-
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           appTitle,
-          AppHandler.formAndGetThreadList(
-            threadListMap.toMutableMap(),
-            messageList.toMutableList()
-          ),
+          AppHandler.getThreadList(detector, this.contentResolver),
           dataStore,
           detector,
           showPermissionButton,
