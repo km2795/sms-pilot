@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -76,8 +77,57 @@ class LandingPageViewModel(
       true,
       messageObserver
     )
-
     load()
+  }
+
+  /**
+   * Checks for the READ_SMS permission. If the permission is already granted,
+   * it updates the DataStore, hides the permission button, and loads the SMS
+   * threads. If the permission is not granted, it updates the DataStore to
+   * reflect this, ensures the permission button is visible, and then launches
+   * the permission request using the provided [activityResultLauncher].
+   *
+   * @param activityResultLauncher Used to request the SMS read permission.
+   */
+  fun checkAndRequestPermission(activityResultLauncher: ActivityResultLauncher<String>) {
+    val context = getApplication<Application>().applicationContext
+    when {
+      ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.READ_SMS
+      ) == PackageManager.PERMISSION_GRANTED -> {
+        dataStore.updateSmsReadPermission(context, true)
+        _showPermissionButton.value = false
+        loadThreads()
+      }
+      else -> {
+        // Update DataStore to reflect that permission is not (yet) granted
+        dataStore.updateSmsReadPermission(context, false)
+        _showPermissionButton.value = true // Ensure button is shown while asking
+        activityResultLauncher.launch(Manifest.permission.READ_SMS)
+      }
+    }
+  }
+
+  /**
+   * Handles the result of the SMS read permission request.
+   *
+   * Updates the DataStore with the permission status and
+   * controls the visibility of the permission button. If
+   * permission is granted, it loads the SMS threads. If
+   * permission is denied, it clears the SMS messages.
+   *
+   * @param isGranted
+   */
+  fun handlePermissionResult(isGranted: Boolean) {
+    val context = getApplication<Application>().applicationContext
+    dataStore.updateSmsReadPermission(context, isGranted)
+    _showPermissionButton.value = !isGranted
+    if (isGranted) {
+      loadThreads()
+    } else {
+      clearSmsMessages() // Or handle denial appropriately
+    }
   }
 
   /**

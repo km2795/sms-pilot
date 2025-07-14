@@ -1,7 +1,5 @@
 package sr79.works.smspilot.composables
 
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -26,7 +24,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
@@ -38,8 +35,8 @@ import sr79.works.smspilot.ui.theme.OrangeDef
  * @param appTitle App's title.
  * @param threadList A list of [Thread] objects representing the group of messages.
  * @param dataStore App's data store (handler functions).
- * @param showPermissionButton A boolean indicating whether the "Load SMS Messages" button (for permission request) should be visible.
- * @param updatePermissionButtonVisibility Callback invoked to update the visibility of the permission button.
+ * @param showPermissionButton Flag for visibility of Permission Button.
+ * @param updatePermissionButtonVisibility callback for updating permission button's visibility.
  * @param landingPageViewModel [LandingPageViewModel] to handle logic related to the landing page.
  * @param modifier
  */
@@ -59,41 +56,16 @@ fun LandingPage(
   
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
-  
-  // ActivityResultLauncher for permission request
+
   val requestPermissionLauncher =
     rememberLauncherForActivityResult(
       ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-
-      // Update the "READ YES" permission to the data store.
-      dataStore.updateSmsReadPermission(context, isGranted)
-      updatePermissionButtonVisibility(!isGranted)
-
-      // Either load threads or remove previous ones.
-      if (isGranted) {
-        landingPageViewModel.loadThreads()
-      } else {
-        // Not essentially required.
-        landingPageViewModel.clearSmsMessages()
-      }
+      landingPageViewModel.handlePermissionResult(isGranted)
     }
 
   val onRequestPermissionClick = {
-    when(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS)) {
-      PackageManager.PERMISSION_GRANTED -> {
-        // Update the "READ YES" permission to the data store.
-        dataStore.updateSmsReadPermission(context, true)
-        landingPageViewModel.loadThreads()
-
-        // Hide the permission button.
-        updatePermissionButtonVisibility(false)
-      }
-      else -> {
-        // Show the permission dialog.
-        requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
-      }
-    }
+    landingPageViewModel.checkAndRequestPermission(requestPermissionLauncher)
   }
 
   Column(
