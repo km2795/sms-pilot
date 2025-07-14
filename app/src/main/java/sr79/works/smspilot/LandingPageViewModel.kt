@@ -178,7 +178,7 @@ class LandingPageViewModel(
   /**
    * Load the Threads.
    */
-  fun loadThreads() {
+  private fun loadThreads() {
     viewModelScope.launch(Dispatchers.IO) {
       val threads = AppHandler.getThreadList(detector, application.contentResolver)
       _threadList.value = threads

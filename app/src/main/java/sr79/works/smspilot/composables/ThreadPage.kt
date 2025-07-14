@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import java.nio.MappedByteBuffer
+import sr79.works.smspilot.ui.theme.OrangeDef
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,8 +39,8 @@ fun ThreadPage(
         }
       },
       colors = TopAppBarDefaults.topAppBarColors(
-        containerColor = Color.hsv(270f, 0.4f, 0.3f),
-        titleContentColor = Color.hsv(0f, 0f, 1f)
+        containerColor = OrangeDef,
+        titleContentColor = Color.White
       ),
       modifier = Modifier.shadow(6.dp)
     )
