@@ -2,7 +2,6 @@ package sr79.works.smspilot
 
 import android.app.Activity
 import android.content.ContentResolver
-import android.content.Context
 import android.provider.Telephony
 import java.nio.MappedByteBuffer
 
@@ -10,35 +9,6 @@ import java.nio.MappedByteBuffer
  * Handler class for app's main logic.
  */
 object AppHandler {
-
-  /**
-   * Get the SMS read permission from the data cache.
-   *
-   * @param context Context of the application.
-   * @return SMS read permission.
-   */
-  fun checkSmsReadPermission(
-    dataStore: DataStore,
-    context: Context
-  ): Boolean {
-
-    return dataStore.getSmsReadPermission(context) ?: false
-  }
-
-  /**
-   * Update the SMS read permission in the data cache.
-   *
-   * @param permission SMS read permission.
-   * @param context Context of the application.
-   */
-  fun updateSmsReadPermission(
-    dataStore: DataStore,
-    context: Context,
-    permission: Boolean
-  ) {
-
-    dataStore.updateSmsReadPermission(context, permission)
-  }
 
   fun setupDetector(activity: Activity): MappedByteBuffer? {
     return loadDetector(activity, "sms_spam_detector_model.tflite")

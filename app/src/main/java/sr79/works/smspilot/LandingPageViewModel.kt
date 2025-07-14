@@ -122,7 +122,7 @@ class LandingPageViewModel(
 
   private fun checkPermission(): Boolean {
     // Check the permission (if stored already).
-    return AppHandler.checkSmsReadPermission(dataStore, application)
+    return dataStore.getSmsReadPermission(application)
   }
 
   /**
