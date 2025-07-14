@@ -9,7 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,6 +30,7 @@ import androidx.core.content.ContextCompat
 import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
+import sr79.works.smspilot.ui.theme.OrangeDef
 
 /**
  * First or Main screen of the App.
@@ -36,9 +38,8 @@ import sr79.works.smspilot.Thread
  * @param appTitle App's title.
  * @param threadList A list of [Thread] objects representing the group of messages.
  * @param dataStore App's data store (handler functions).
- * @param detector Used for spam detection.
  * @param showPermissionButton A boolean indicating whether the "Load SMS Messages" button (for permission request) should be visible.
- * @param onShowPermissionButton Callback invoked to update the visibility of the permission button.
+ * @param updatePermissionButtonVisibility Callback invoked to update the visibility of the permission button.
  * @param landingPageViewModel [LandingPageViewModel] to handle logic related to the landing page.
  * @param modifier
  */
@@ -49,7 +50,7 @@ fun LandingPage(
   threadList: List<Thread>,
   dataStore: DataStore,
   showPermissionButton: Boolean,
-  onShowPermissionButton: (Boolean) -> Unit,
+  updatePermissionButtonVisibility: (Boolean) -> Unit,
   landingPageViewModel: LandingPageViewModel,
   modifier: Modifier = Modifier
 ) {
@@ -58,60 +59,39 @@ fun LandingPage(
   
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
-
+  
   // ActivityResultLauncher for permission request
   val requestPermissionLauncher =
     rememberLauncherForActivityResult(
       ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
 
+      // Update the "READ YES" permission to the data store.
+      dataStore.updateSmsReadPermission(context, isGranted)
+      updatePermissionButtonVisibility(!isGranted)
+
+      // Either load threads or remove previous ones.
       if (isGranted) {
-        onShowPermissionButton(false)
-
-        // Load through the ViewModel.
         landingPageViewModel.loadThreads()
-
-        // Update the "READ YES" permission to the data store.
-        dataStore.updateSmsReadPermission(context, true)
       } else {
-        // User denied permission.
-        onShowPermissionButton(true)
-
-        // Update the "READ NO" permission to the data store.
-        dataStore.updateSmsReadPermission(context, false)
-
         // Not essentially required.
         landingPageViewModel.clearSmsMessages()
       }
     }
 
-  val onRequestPermission = {
-    when {
-      ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.READ_SMS
-      ) == PackageManager.PERMISSION_GRANTED -> {
+  val onRequestPermissionClick = {
+    when(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS)) {
+      PackageManager.PERMISSION_GRANTED -> {
         // Update the "READ YES" permission to the data store.
         dataStore.updateSmsReadPermission(context, true)
-
-        // Load through ViewModel.
         landingPageViewModel.loadThreads()
 
         // Hide the permission button.
-        onShowPermissionButton(false)
+        updatePermissionButtonVisibility(false)
       }
       else -> {
-        // Update the "READ NO" permission to the data store.
-        dataStore.updateSmsReadPermission(context, false)
-
         // Show the permission dialog.
         requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
-
-        // Show the permission button.
-        onShowPermissionButton(true)
-
-        // Not needed essentially.
-        landingPageViewModel.clearSmsMessages()
       }
     }
   }
@@ -128,13 +108,13 @@ fun LandingPage(
           showMenu = showExtraTopActionMenu,
           dataStore,
           onShowExtraTopActionMenu = { showExtraTopActionMenu = it },
-          onShowPermissionButton,
+          updatePermissionButtonVisibility,
           modifier = Modifier.background(Color.White)
         )
       },
       colors = TopAppBarDefaults.topAppBarColors(
-        containerColor = Color.hsl(38.8f, 1f, 0.5f),
-        titleContentColor = Color.hsv(0f, 0f, 1f)
+        containerColor = OrangeDef,
+        titleContentColor = Color.White
       ),
       modifier = Modifier.shadow(10.dp)
     )
@@ -142,19 +122,24 @@ fun LandingPage(
       modifier = Modifier
         .fillMaxSize()
         .background(Color.White),
-      verticalArrangement = Arrangement.Top,
+      verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       if (showPermissionButton) {
-        Button(onClick = onRequestPermission) {
+        ElevatedButton(
+          onClick = onRequestPermissionClick,
+          colors =  ButtonColors(
+            contentColor = Color.White,
+            disabledContainerColor = OrangeDef,
+            disabledContentColor = OrangeDef,
+            containerColor = OrangeDef
+          )) {
           Text("Load SMS Messages")
         }
-        if (threadList.isEmpty()) {
-          Text(
-            "No SMS messages found or permission not granted.",
-            modifier = Modifier.padding(16.dp)
-          )
-        }
+        Text(
+          "No SMS messages found or permission not granted.",
+          modifier = Modifier.padding(16.dp)
+        )
       } else {
         ThreadList(
           threadList,

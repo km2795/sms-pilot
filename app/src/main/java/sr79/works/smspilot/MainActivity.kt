@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
           threads,
           dataStore,
           showPermissionButton,
-          onShowPermissionButton = { show -> landingPageViewModel.updateShowPermissionButton(show) },
+          updatePermissionButtonVisibility = { show -> landingPageViewModel.updateShowPermissionButton(show) },
           landingPageViewModel,
           modifier = Modifier.padding(innerPadding)
         )
