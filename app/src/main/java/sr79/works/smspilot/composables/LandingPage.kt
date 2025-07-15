@@ -44,7 +44,7 @@ import sr79.works.smspilot.ui.theme.OrangeDef
 @Composable
 fun LandingPage(
   appTitle: String,
-  threadList: List<Thread>,
+  displayThreads: List<DisplayThread>,
   dataStore: DataStore,
   showPermissionButton: Boolean,
   updatePermissionButtonVisibility: (Boolean) -> Unit,
@@ -114,7 +114,7 @@ fun LandingPage(
         )
       } else {
         ThreadList(
-          threadList,
+          displayThreads,
           modifier = Modifier
         )
       }

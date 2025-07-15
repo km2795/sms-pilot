@@ -34,14 +34,15 @@ class MainActivity : ComponentActivity() {
       LandingPageViewModel.LandingPageViewModelFactory(application, dataStore, detector)
     }
 
+
     setContent {
-      val threads by landingPageViewModel.threadList.collectAsState()
+      val displayThreads by landingPageViewModel.displayThreads.collectAsState()
       val showPermissionButton by landingPageViewModel.showPermissionButton.collectAsState()
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           appTitle,
-          threads,
+          displayThreads,
           dataStore,
           showPermissionButton,
           updatePermissionButtonVisibility = { show -> landingPageViewModel.updateShowPermissionButton(show) },

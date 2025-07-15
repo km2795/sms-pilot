@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import sr79.works.smspilot.composables.DisplayThread
 import java.nio.MappedByteBuffer
 
 class LandingPageViewModel(
@@ -31,12 +32,14 @@ class LandingPageViewModel(
    * Private data objects for the view model.
    */
   private val _threadList = MutableStateFlow<List<Thread>>(emptyList())
+  private val _displayThreads = MutableStateFlow<List<DisplayThread>>(emptyList())
   private val _messageList = MutableStateFlow<List<Message>>(emptyList())
 
   /*
    * Public modes of the view model's data objects.
    */
   val threadList: StateFlow<List<Thread>> = _threadList.asStateFlow()
+  val displayThreads: StateFlow<List<DisplayThread>> = _displayThreads.asStateFlow()
   val messageList: StateFlow<List<Message>> = _messageList
 
   // For controlling visibility of the permission button.
@@ -174,6 +177,7 @@ class LandingPageViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       val threads = AppHandler.getThreadList(detector, application.contentResolver)
       _threadList.value = threads
+      _displayThreads.value = AppHandler.getDisplayThreads(threads)
     }
   }
 
@@ -192,7 +196,7 @@ class LandingPageViewModel(
   /**
    * To clear the message list.
    */
-  fun clearSmsMessages() {
+  private fun clearSmsMessages() {
     _messageList.value = emptyList()
     dataStore.clearTable()
   }

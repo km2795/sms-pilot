@@ -11,8 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,30 +26,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import sr79.works.smspilot.Thread
 import sr79.works.smspilot.ThreadActivity
 import sr79.works.smspilot.Utilities
 
 
 @Composable
 fun ThreadCard(
-  sms: Thread,
+  thread: DisplayThread,
   modifier: Modifier = Modifier
 ) {
-  val smsBody: String = sms.getBodyThumbnail()
+  val smsBody: String = thread.bodyThumbnail
   val context = LocalContext.current
 
-  ElevatedCard(
-    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-
+  Card(
     // When the 'ThreadCard' is clicked.
-    onClick = remember(context, sms) {{
+    onClick = remember(context, thread) {{
 
       // Create an intent to pass Thread Object to 'ThreadActivity'
       val intent = Intent(context, ThreadActivity::class.java)
 
-      // @param {sms} is to be serialized.
-      intent.putExtra("thread", Utilities.serialize(sms))
+      // @param {Thread} is to be serialized.
+      intent.putExtra("thread", Utilities.serialize(thread.ogThread))
 
       // Start the 'ThreadActivity'.
       context.startActivity(intent)
@@ -68,7 +64,7 @@ fun ThreadCard(
           contentAlignment = Alignment.Center // Center the text
         ) {
           Text(
-            text = placeholderForContact(sms.getAddress()),
+            text = thread.contactPlaceholder,
             fontSize = 24.sp,
             fontWeight = FontWeight.Normal,
             color = Color.Black
@@ -80,14 +76,14 @@ fun ThreadCard(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Text(
-              sms.getAddress(),
+              thread.address,
               fontSize = 15.sp,
               fontWeight = FontWeight.SemiBold,
               modifier = Modifier
                 .padding(horizontal = 15.dp, vertical = 3.dp)
             )
             Text(
-              Utilities.modifyDateField(sms.getShowDate().toString(), false),
+              thread.showDate,
               textAlign = TextAlign.Right,
               fontSize = 13.sp,
               modifier = Modifier
@@ -119,16 +115,16 @@ fun ThreadCard(
                   .border(0.5.dp, Color.Black, CircleShape)
               ) {
                 Text(
-                  sms.getThreadSize().toString(),
+                  thread.threadSize.toString(),
                   fontSize = 12.sp,
                   fontWeight = FontWeight.SemiBold
                 )
               }
             }
           }
-          if (sms.hasSpamOrNot()) {
+          if (thread.isSpam) {
             Text(
-              "SPAM DETECTED: ${sms.getSpamCount()}",
+              "SPAM DETECTED: ${thread.spamCount}",
               fontSize = 13.sp,
               fontWeight = FontWeight.SemiBold,
               color = Color.Red,
@@ -139,26 +135,5 @@ fun ThreadCard(
         }
       }
     }
-  }
-}
-
-/**
- * To check if the Thread's address has only number
- * or contains text too. (Return the first letter
- * of the address or # (in case of number only
- * address).
- *
- * @param text String to check
- * @return String to place in contact photo.
- */
-fun placeholderForContact(text: String): String {
-  val numberPattern = "^(\\+\\d{1,3}[- ]?)?\\d+$".toRegex()
-
-  // It's a number match.
-  return if (text.matches(numberPattern)) {
-    "#"
-  } else {
-    // Text match. (other than number).
-    text.firstOrNull()?.uppercaseChar().toString()
   }
 }

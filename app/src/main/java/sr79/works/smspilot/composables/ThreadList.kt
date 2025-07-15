@@ -9,12 +9,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import sr79.works.smspilot.Thread
 
 // Simple Composable to display the SMS list and a button to request permission
 @Composable
 fun ThreadList(
-  threadList: List<Thread>,
+  displayThreads: List<DisplayThread>,
   modifier: Modifier = Modifier
 ) {
   LazyColumn(
@@ -27,9 +26,10 @@ fun ThreadList(
        */
       .padding(WindowInsets.navigationBars.asPaddingValues())
   ) {
-    // Load each Thread.
-    items(threadList) { message ->
-      ThreadCard(message, modifier)
+
+    // Display Threads.
+    items(displayThreads) { thread ->
+      ThreadCard(thread, modifier)
     }
   }
 }

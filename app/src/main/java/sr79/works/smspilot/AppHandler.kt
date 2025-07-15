@@ -3,6 +3,7 @@ package sr79.works.smspilot
 import android.app.Activity
 import android.content.ContentResolver
 import android.provider.Telephony
+import sr79.works.smspilot.composables.DisplayThread
 import java.nio.MappedByteBuffer
 
 /**
@@ -102,5 +103,29 @@ object AppHandler {
     }
 
     return ThreadListHandler.getThreadList(threadMap)
+  }
+
+  fun getDisplayThreads(
+    threadList: List<Thread>
+  ): List<DisplayThread> {
+
+    val displayThreads: MutableList<DisplayThread> = mutableListOf()
+
+    threadList.forEach { thread->
+      displayThreads.add(DisplayThread(
+        id = thread.getThreadId().toString(),
+        address = thread.getAddress(),
+        contactPlaceholder = Utilities.placeholderForContact(thread.getAddress()),
+        showDate = Utilities.modifyDateField(thread.getShowDate().toString(), false),
+        bodyThumbnail = thread.getBodyThumbnail(),
+        threadSize = thread.getThreadSize(),
+        isSpam = thread.hasSpamOrNot(),
+        spamCount = thread.getSpamCount(),
+        ogThread = thread
+        )
+      )
+    }
+
+    return displayThreads
   }
 }

@@ -192,4 +192,25 @@ object Utilities {
       }
     }
   }
+
+  /**
+   * To check if the Thread's address has only number
+   * or contains text too. (Return the first letter
+   * of the address or # (in case of number only
+   * address).
+   *
+   * @param text String to check
+   * @return String to place in contact photo.
+   */
+  fun placeholderForContact(text: String): String {
+    val numberPattern = "^(\\+\\d{1,3}[- ]?)?\\d+$".toRegex()
+
+    // It's a number match.
+    return if (text.matches(numberPattern)) {
+      "#"
+    } else {
+      // Text match. (other than number).
+      text.firstOrNull()?.uppercaseChar().toString()
+    }
+  }
 }
