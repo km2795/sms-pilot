@@ -53,14 +53,6 @@ class LandingPageViewModel(
   // Handle for content resolver. (Used specifically for content observer).
   private val contentResolver = application.contentResolver
 
-  // For implementing the ViewModel factory.
-  override fun <T : ViewModel> create(modelClass: Class<T>): T {
-    if (modelClass.isAssignableFrom(LandingPageViewModel::class.java)) {
-      return LandingPageViewModel(application, dataStore, detector) as T
-    }
-    throw IllegalArgumentException("Unknown ViewModel class")
-  }
-
   // For the content change. (For updates in the SMSs content provider).
   private val messageObserver = object: ContentObserver(Handler(Looper.getMainLooper())) {
     override fun onChange(selfChange: Boolean, uri: Uri?) {
@@ -203,5 +195,20 @@ class LandingPageViewModel(
   fun clearSmsMessages() {
     _messageList.value = emptyList()
     dataStore.clearTable()
+  }
+
+  // Factory for our LandingPageViewModel.
+  class LandingPageViewModelFactory(
+    private val application: Application,
+    private val dataStore: DataStore,
+    private val detector: MappedByteBuffer?
+  ): ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+      if (modelClass.isAssignableFrom(LandingPageViewModel::class.java)) {
+        return LandingPageViewModel(application, dataStore, detector) as T
+      }
+      throw IllegalArgumentException("Unknown ViewModel class")
+    }
   }
 }

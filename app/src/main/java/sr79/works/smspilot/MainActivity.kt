@@ -29,9 +29,9 @@ class MainActivity : ComponentActivity() {
     // Load the Database and Data store handle.
     val dataStore: DataStore = DataStore(this)
 
-    // ViewModel for managing the Landing Page (or Landing Screen).
+    // ViewModel for Landing Page.
     val landingPageViewModel by viewModels<LandingPageViewModel> {
-      LandingPageViewModel(application, dataStore, detector)
+      LandingPageViewModel.LandingPageViewModelFactory(application, dataStore, detector)
     }
 
     setContent {
@@ -50,6 +50,5 @@ class MainActivity : ComponentActivity() {
         )
       }
     }
-
   }
 }
