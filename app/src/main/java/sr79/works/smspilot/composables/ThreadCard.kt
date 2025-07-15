@@ -15,6 +15,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +44,7 @@ fun ThreadCard(
     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
 
     // When the 'ThreadCard' is clicked.
-    onClick = {
+    onClick = remember(context, sms) {{
 
       // Create an intent to pass Thread Object to 'ThreadActivity'
       val intent = Intent(context, ThreadActivity::class.java)
@@ -53,26 +54,25 @@ fun ThreadCard(
 
       // Start the 'ThreadActivity'.
       context.startActivity(intent)
+      }
     },
     modifier = Modifier.padding(8.dp)
   ) {
     Box(modifier = Modifier.background(Color.White)) {
       Row(modifier = Modifier.padding(10.dp)) {
-        Box(modifier = Modifier) {
-          Box(
-            modifier = modifier
-              .size(50.dp)
-              .clip(CircleShape)
-              .border(0.5.dp, Color.Black, CircleShape),
-            contentAlignment = Alignment.Center // Center the text
-          ) {
-            Text(
-              text = placeholderForContact(sms.getAddress()),
-              fontSize = 24.sp,
-              fontWeight = FontWeight.Normal,
-              color = Color.Black
-            )
-          }
+        Box(
+          modifier = Modifier
+            .size(50.dp)
+            .clip(CircleShape)
+            .border(0.5.dp, Color.Black, CircleShape),
+          contentAlignment = Alignment.Center // Center the text
+        ) {
+          Text(
+            text = placeholderForContact(sms.getAddress()),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.Black
+          )
         }
         Column(modifier = Modifier.fillMaxWidth()) {
           Row(
