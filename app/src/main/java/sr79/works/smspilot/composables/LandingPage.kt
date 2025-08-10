@@ -1,5 +1,6 @@
 package sr79.works.smspilot.composables
 
+import android.app.Application
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -24,10 +25,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
 import sr79.works.smspilot.Thread
 import sr79.works.smspilot.ui.theme.OrangeDef
+import java.nio.MappedByteBuffer
 
 /**
  * First or Main screen of the App.
@@ -44,11 +48,18 @@ import sr79.works.smspilot.ui.theme.OrangeDef
 @Composable
 fun LandingPage(
   appTitle: String,
-  displayThreads: List<DisplayThread>,
+//  displayThreads: List<DisplayThread>,
   dataStore: DataStore,
+  detector: MappedByteBuffer?,
   showPermissionButton: Boolean,
   updatePermissionButtonVisibility: (Boolean) -> Unit,
-  landingPageViewModel: LandingPageViewModel,
+  landingPageViewModel: LandingPageViewModel = viewModel(
+    factory = LandingPageViewModel.LandingPageViewModelFactory(
+      application = LocalContext.current.applicationContext as Application,
+      dataStore = dataStore,
+      detector = detector
+    )
+  ),
   modifier: Modifier = Modifier
 ) {
 
@@ -56,6 +67,9 @@ fun LandingPage(
   
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
+
+  val displayThreads = landingPageViewModel.displayThreads.collectAsLazyPagingItems()
+
 
   val requestPermissionLauncher =
     rememberLauncherForActivityResult(
@@ -113,10 +127,7 @@ fun LandingPage(
           modifier = Modifier.padding(16.dp)
         )
       } else {
-        ThreadList(
-          displayThreads,
-          modifier = Modifier
-        )
+        ThreadList(displayThreads = displayThreads)
       }
     }
   }

@@ -49,6 +49,11 @@ android {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.paging.common.android)
+    implementation(libs.androidx.paging.compose.android)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("com.github.rholder:snowball-stemmer:1.3.0.581.1")
@@ -61,9 +66,4 @@ android {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
   }
-}
-dependencies {
-  implementation(libs.androidx.appcompat)
-  implementation(libs.material)
-  implementation(libs.androidx.activity)
 }

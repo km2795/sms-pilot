@@ -14,7 +14,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.cachedIn
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,12 +46,20 @@ class LandingPageViewModel(
    * Public modes of the view model's data objects.
    */
   val threadList: StateFlow<List<Thread>> = _threadList.asStateFlow()
-  val displayThreads: StateFlow<List<DisplayThread>> = _displayThreads.asStateFlow()
+//  val displayThreads: StateFlow<List<DisplayThread>> = _displayThreads.asStateFlow()
   val messageList: StateFlow<List<Message>> = _messageList
 
   // For controlling visibility of the permission button.
   private val _showPermissionButton = MutableStateFlow(true)
   val showPermissionButton: StateFlow<Boolean> = _showPermissionButton.asStateFlow()
+
+  val displayThreads: Flow<PagingData<DisplayThread>> = Pager(
+    config = PagingConfig(
+      pageSize = 30,
+      enablePlaceholders = false
+    ),
+    pagingSourceFactory = { ThreadPagingSource(detector, application.contentResolver, application) }
+  ).flow.cachedIn(viewModelScope)
 
   fun updateShowPermissionButton(show: Boolean) {
     _showPermissionButton.value = show
@@ -213,6 +228,77 @@ class LandingPageViewModel(
         return LandingPageViewModel(application, dataStore, detector) as T
       }
       throw IllegalArgumentException("Unknown ViewModel class")
+    }
+  }
+
+  class ThreadPagingSource(
+    private val detector: MappedByteBuffer?,
+    private val contentResolver: android.content.ContentResolver,
+    private val application: Application // If AppHandler needs application context
+    // You might not need to pass the full list of displayThreads anymore
+  ) : PagingSource<Int, DisplayThread>() {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DisplayThread> {
+      // Permission check should ideally happen before attempting to load.
+      // If permission is not granted, this source should probably return an empty list or an error.
+      // However, the ViewModel now controls the UI state based on permission.
+      // The Pager will only be active if permission is granted.
+
+      // The key (page number) is not directly used by AppHandler.getThreadList
+      // as it fetches all threads at once.
+      // For true pagination, AppHandler.getThreadList would need to support offset/limit.
+      // For now, we'll load all and the Paging library will handle displaying them.
+      // This isn't "true" pagination from the source but paginates the already loaded list.
+      // To make this a true paginated source, AppHandler.getThreadList would need modification.
+
+      // Let's assume for now, we load all threads once and Paging library handles the "view" paging.
+      // A more robust PagingSource would fetch data in chunks from the ContentResolver.
+      val currentPage = params.key ?: 1 // Paging library uses 1-based indexing for pages by default with Pager
+      val pageSize = params.loadSize
+
+      return try {
+        // Perform permission check before accessing content resolver
+        if (ContextCompat.checkSelfPermission(
+            application,
+            Manifest.permission.READ_SMS
+          ) != PackageManager.PERMISSION_GRANTED
+        ) {
+          // If permission is not granted, return an empty page or an error.
+          // This prevents crashes if the source tries to load without permission.
+          return LoadResult.Page(emptyList(), prevKey = null, nextKey = null)
+        }
+
+        // Simulate pagination if AppHandler cannot do it:
+        // 1. Fetch all threads (this is inefficient for large datasets but matches current AppHandler)
+        val allThreads = AppHandler.getThreadList(detector, contentResolver)
+        val allDisplayThreads = AppHandler.getDisplayThreads(allThreads)
+
+        // 2. Calculate the sublist for the current page
+        val startIndex = (currentPage - 1) * pageSize
+        val endIndex = (startIndex + pageSize).coerceAtMost(allDisplayThreads.size)
+
+        val pagedThreads = if (startIndex < allDisplayThreads.size) {
+          allDisplayThreads.subList(startIndex, endIndex)
+        } else {
+          emptyList()
+        }
+
+        LoadResult.Page(
+          data = pagedThreads,
+          prevKey = if (currentPage == 1) null else currentPage - 1,
+          nextKey = if (pagedThreads.isEmpty() || endIndex >= allDisplayThreads.size) null else currentPage + 1
+        )
+      } catch (e: Exception) {
+        // Log the exception or handle it more gracefully
+        LoadResult.Error(e)
+      }
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, DisplayThread>): Int? {
+      return state.anchorPosition?.let { anchorPosition ->
+        state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+          ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+      }
     }
   }
 }
