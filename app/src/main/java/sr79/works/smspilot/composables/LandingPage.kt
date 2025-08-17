@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,10 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.paging.compose.collectAsLazyPagingItems
 import sr79.works.smspilot.DataStore
 import sr79.works.smspilot.LandingPageViewModel
-import sr79.works.smspilot.Thread
 import sr79.works.smspilot.ui.theme.OrangeDef
 import java.nio.MappedByteBuffer
 
@@ -37,8 +36,8 @@ import java.nio.MappedByteBuffer
  * First or Main screen of the App.
  *
  * @param appTitle App's title.
- * @param threadList A list of [Thread] objects representing the group of messages.
  * @param dataStore App's data store (handler functions).
+ * @param detector App's detector model.
  * @param showPermissionButton Flag for visibility of Permission Button.
  * @param updatePermissionButtonVisibility callback for updating permission button's visibility.
  * @param landingPageViewModel [LandingPageViewModel] to handle logic related to the landing page.
@@ -48,7 +47,6 @@ import java.nio.MappedByteBuffer
 @Composable
 fun LandingPage(
   appTitle: String,
-//  displayThreads: List<DisplayThread>,
   dataStore: DataStore,
   detector: MappedByteBuffer?,
   showPermissionButton: Boolean,
@@ -63,13 +61,10 @@ fun LandingPage(
   modifier: Modifier = Modifier
 ) {
 
-  val context = LocalContext.current
-  
   // For controlling visibility of the extra top bar actions.
   var showExtraTopActionMenu by rememberSaveable { mutableStateOf(false) }
 
-  val displayThreads = landingPageViewModel.displayThreads.collectAsLazyPagingItems()
-
+  val displayThreads = landingPageViewModel.displayThreads.collectAsState()
 
   val requestPermissionLauncher =
     rememberLauncherForActivityResult(
@@ -127,7 +122,7 @@ fun LandingPage(
           modifier = Modifier.padding(16.dp)
         )
       } else {
-        ThreadList(displayThreads = displayThreads)
+        ThreadList(displayThreads.value)
       }
     }
   }

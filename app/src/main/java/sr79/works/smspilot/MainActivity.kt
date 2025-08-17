@@ -36,13 +36,11 @@ class MainActivity : ComponentActivity() {
 
 
     setContent {
-//      val displayThreads by landingPageViewModel.displayThreads.collectAsLazyPagingItems()
       val showPermissionButton by landingPageViewModel.showPermissionButton.collectAsState()
 
       Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         LandingPage(
           appTitle,
-//          displayThreads,
           dataStore,
           detector,
           showPermissionButton,
