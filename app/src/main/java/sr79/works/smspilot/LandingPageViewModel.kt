@@ -62,7 +62,7 @@ class LandingPageViewModel(
       super.onChange(selfChange, uri)
 
       // Update happens. Refresh the list.
-      loadThreads()
+      refreshSmsMessages()
     }
   }
 
@@ -183,11 +183,23 @@ class LandingPageViewModel(
 
   /**
    * To refresh the message list with changes.
+   * Update method is very trivial, and won't
+   * work, when number of messages deleted and
+   * added are same.
    */
   fun refreshSmsMessages() {
     // Should fetch and check for updates.
     viewModelScope.launch {
-      _messageList.value = AppHandler.getMessageList(detector, contentResolver)
+      var previousSize = _messageList.value.size
+      _messageList.value = AppHandler.getMessageList(detector, application.contentResolver)
+      var newSize = _messageList.value.size
+
+      // Check for size difference.
+      // This is very trivial and
+      // not a good solution.
+      if (previousSize != newSize) {
+        loadThreads()
+      }
     }
   }
 
