@@ -70,7 +70,7 @@ object AppHandler {
             if (address != null && body != null) {
               // Add the message.
               messageList.add(
-                Message(id, address, body, date, type, spamOrNot(detector, body))
+                Message(id, address, body, date, type)
               )
             }
 
