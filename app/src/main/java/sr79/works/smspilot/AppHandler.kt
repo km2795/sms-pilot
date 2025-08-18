@@ -18,12 +18,11 @@ object AppHandler {
   /**
    * Returns the list of all the SMSs in the inbox ('inbox', 'sent').
    *
-   * @param detector MappedByteBuffer (Spam detector).
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
   fun getMessageList(
-    detector: MappedByteBuffer?,
+    dataStore: DataStore,
     contentResolver: ContentResolver
   ): List<Message> {
 
@@ -68,12 +67,19 @@ object AppHandler {
 
             // Basic null checks, especially for address which can sometimes be null
             if (address != null && body != null) {
-              // Add the message.
-              messageList.add(
-                Message(id, address, body, date, type)
+              var message = Message(
+                id = id,
+                address = address,
+                body = body,
+                date = date,
+                type = type
               )
-            }
 
+              // Store the message in the database.
+              dataStore.storeMessage(message)
+              // Add the message.
+              messageList.add(message)
+            }
           } while (it.moveToNext())
         }
       }
@@ -86,19 +92,17 @@ object AppHandler {
    * Returns the list of all the Threads.
    * Each message is put into its respective Thread.
    *
-   * @param detector MappedByteBuffer (Spam detector).
+   * @param messageList List<Message>
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
   fun getThreadList(
-    detector: MappedByteBuffer?,
-    contentResolver: ContentResolver
+    messageList: MutableList<Message>
   ): List<Thread> {
 
     val threadMap: MutableMap<String, Thread> = mutableMapOf()
-    val messages = getMessageList(detector, contentResolver)
 
-    messages.forEach { message ->
+    messageList.forEach { message ->
       ThreadListHandler.addMessage(threadMap, message)
     }
 
