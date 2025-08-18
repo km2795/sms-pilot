@@ -1,9 +1,11 @@
 package sr79.works.smspilot
 
+import android.R.attr.type
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 /**
  * Data storage interface of the application.
@@ -32,7 +34,7 @@ class DataStore(context: Context): SQLiteOpenHelper(
   // Create table query.
   private val CREATE_TABLE = "" +
           "CREATE TABLE IF NOT EXISTS $TABLE_NAME (" +
-          COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
+          COLUMN_NAME_ID + " LONG PRIMARY KEY," +
           COLUMN_NAME_ADDRESS + " TEXT," +
           COLUMN_NAME_BODY + " TEXT," +
           COLUMN_NAME_DATE + " INTEGER," +
@@ -65,25 +67,62 @@ class DataStore(context: Context): SQLiteOpenHelper(
    * @param type Type of the message.
    * @param spam Spam status of the message.
    */
-  fun storeMessage(
-    id: Long,
-    body: String,
-    address: String,
-    date: Long,
-    type: Int,
-    spam: Int
-  ) {
-
+  fun storeMessage(message: Message): Boolean {
     val entryMap = ContentValues().apply {
-      put(COLUMN_NAME_ID, id)
-      put(COLUMN_NAME_BODY, body)
-      put(COLUMN_NAME_ADDRESS, address)
-      put(COLUMN_NAME_DATE, date)
-      put(COLUMN_NAME_TYPE, type)
-      put(COLUMN_NAME_SPAM, spam)
+      put(COLUMN_NAME_ID, message.getId())
+      put(COLUMN_NAME_BODY, message.getBody())
+      put(COLUMN_NAME_ADDRESS, message.getAddress())
+      put(COLUMN_NAME_DATE, message.getDate())
+      put(COLUMN_NAME_TYPE, message.getType())
+      put(COLUMN_NAME_SPAM, message.getSpamOrNot())
     }
     val db = this.writableDatabase
-    db?.insert(TABLE_NAME, null, entryMap)
+    return try {
+      val rowId = db?.insert(TABLE_NAME, null, entryMap)
+
+      // Check to see, if the message got inserted.
+      rowId != -1L
+    } catch (e: Exception) {
+      Log.e("DataStore", "Error while inserting message", e)
+      false
+    }
+  }
+
+  /**
+   * To update an existing message in the database.
+   * The message is identified by its ID.
+   *
+   * @param message The message object containing the updated data.
+   * @return True if the message was updated successfully (at least one row affected), false otherwise.
+   */
+  fun updateMessage(message: Message): Boolean {
+    val db = this.writableDatabase
+    val values = ContentValues().apply {
+      put(COLUMN_NAME_ADDRESS, message.getAddress())
+      put(COLUMN_NAME_BODY, message.getBody())
+      put(COLUMN_NAME_DATE, message.getDate())
+      put(COLUMN_NAME_TYPE, message.getType())
+      put(COLUMN_NAME_SPAM, message.getSpamOrNot())
+    }
+
+    // Define the WHERE clause: update the row where its ID matches the message's ID.
+    val selection = "$COLUMN_NAME_ID = ?"
+    val selectionArgs = arrayOf(message.getId().toString()) // The ID of the message to update
+
+    return try {
+      val count = db?.update(
+        TABLE_NAME,
+        values,
+        selection,
+        selectionArgs
+      )
+      // The update() method returns the number of rows affected.
+      // If count is greater than 0, it means the update was successful for at least one row.
+      count != null && count > 0
+    } catch (e: Exception) {
+      Log.e("DataStore", "Error while updating message with id ${message.getId()}", e)
+      false
+    }
   }
 
   /**
@@ -165,12 +204,15 @@ class DataStore(context: Context): SQLiteOpenHelper(
     val messageList = mutableListOf<Message>()
     with(cursor) {
       while (moveToNext()) {
-        val id = getInt(getColumnIndexOrThrow(COLUMN_NAME_ID))
+        val id = getLong(getColumnIndexOrThrow(COLUMN_NAME_ID))
         val body = getString(getColumnIndexOrThrow(COLUMN_NAME_BODY))
         val address = getString(getColumnIndexOrThrow(COLUMN_NAME_ADDRESS))
         val date = getLong(getColumnIndexOrThrow(COLUMN_NAME_DATE))
         val type = getInt(getColumnIndexOrThrow(COLUMN_NAME_TYPE))
-        val spam = getInt(getColumnIndexOrThrow(COLUMN_NAME_SPAM))
+        val spam: Boolean = !(getInt(getColumnIndexOrThrow(COLUMN_NAME_SPAM)) == 0)
+        messageList.add(
+          Message(id = id, body = body, address = address, date = date, type = type, spamOrNot = spam)
+        )
       }
     }
     cursor.close()
