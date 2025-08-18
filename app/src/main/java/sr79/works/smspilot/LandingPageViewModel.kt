@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -15,11 +16,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import sr79.works.smspilot.composables.DisplayThread
+import java.net.URL
 import java.nio.MappedByteBuffer
 
 class LandingPageViewModel(
@@ -34,6 +37,9 @@ class LandingPageViewModel(
   private val _threadList = MutableStateFlow<List<Thread>>(emptyList())
   private val _displayThreads = MutableStateFlow<List<DisplayThread>>(emptyList())
   private val _messageList = MutableStateFlow<List<Message>>(emptyList())
+
+  // Stores the messages.
+  private var messageIndex: MutableMap<Long, Message> = mutableMapOf()
 
   /*
    * Public modes of the view model's data objects.
@@ -170,12 +176,20 @@ class LandingPageViewModel(
     return dataStore.getSmsReadPermission(application)
   }
 
+  private fun loadMessageIndex() {
+    var messageList = dataStore.loadMessageList() ?: AppHandler.getMessageList(dataStore, application.contentResolver)
+    for (message in messageList) {
+      messageIndex[message.getId()] = message
+    }
+  }
+
   /**
    * Load the Threads.
    */
   private fun loadThreads() {
     viewModelScope.launch(Dispatchers.IO) {
-      val threads = AppHandler.getThreadList(detector, application.contentResolver)
+      loadMessageIndex()
+      val threads = AppHandler.getThreadList(messageIndex.values.toList() as MutableList<Message>)
       _threadList.value = threads
       _displayThreads.value = AppHandler.getDisplayThreads(threads)
     }
@@ -191,7 +205,7 @@ class LandingPageViewModel(
     // Should fetch and check for updates.
     viewModelScope.launch {
       var previousSize = _messageList.value.size
-      _messageList.value = AppHandler.getMessageList(detector, application.contentResolver)
+      _messageList.value = AppHandler.getMessageList(dataStore, application.contentResolver)
       var newSize = _messageList.value.size
 
       // Check for size difference.
@@ -209,6 +223,41 @@ class LandingPageViewModel(
   private fun clearSmsMessages() {
     _messageList.value = emptyList()
     dataStore.clearTable()
+  }
+
+  suspend fun runPredictor() {
+    viewModelScope.launch {
+      if (API_URL != "") {
+
+        // Spam API URL.
+        val apiUrl = URL(API_URL)
+
+        var messageList = AppHandler.getMessageList(dataStore, application.contentResolver)
+        for (message in messageList) {
+          // Delay for 10 milliseconds.
+          delay(5L)
+
+          // Check if the spam status is set or not.
+          if (message.getSpamOrNot() == null) {
+            // Call predictor API for each those messages,
+            // where spam status is null (have not been
+            // identified before).
+            var verdict = predictorApi(message.getBody(), apiUrl)
+            if (verdict != null) {
+              // Update the message object.
+              message.setSpamOrNot(verdict)
+
+              // Update the message in store.
+              dataStore.updateMessage(message)
+            }
+          }
+        }
+
+        loadThreads()
+      } else {
+        Log.d("runPredictor", "Aborting, No API URL setup.")
+      }
+    }
   }
 
   // Factory for our LandingPageViewModel.
