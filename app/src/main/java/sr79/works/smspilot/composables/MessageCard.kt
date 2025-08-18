@@ -1,5 +1,6 @@
 package sr79.works.smspilot
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun MessageCard(
   message: Message,
@@ -62,7 +64,7 @@ fun MessageCard(
             )
 
             // Show the verdict of the message. (Spam or not).
-          if (message.getSpamOrNot()) {
+          if (message.getSpamOrNot() == true) {
             Text("SPAM", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Red)
           }
           }
