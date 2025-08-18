@@ -14,9 +14,10 @@ import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
 
 
+var API_URL = ""
+
 // Landing Page.
 class MainActivity : ComponentActivity() {
-
   // App's title.
   private val appTitle = "SMS Pilot"
 
@@ -46,6 +47,9 @@ class MainActivity : ComponentActivity() {
           showPermissionButton,
           updatePermissionButtonVisibility = { show -> landingPageViewModel.updateShowPermissionButton(show) },
           landingPageViewModel,
+          spamDetectionSwitch = {
+            landingPageViewModel.runPredictor()
+          },
           modifier = Modifier.padding(innerPadding)
         )
       }

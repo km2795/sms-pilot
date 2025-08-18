@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,7 @@ fun LandingPage(
       detector = detector
     )
   ),
+  spamDetectionSwitch: suspend() -> Unit,
   modifier: Modifier = Modifier
 ) {
 
@@ -90,6 +92,9 @@ fun LandingPage(
           dataStore,
           onShowExtraTopActionMenu = { showExtraTopActionMenu = it },
           updatePermissionButtonVisibility,
+          runPredictor = {
+            landingPageViewModel.runPredictor()
+          },
           modifier = Modifier.background(Color.White)
         )
       },
@@ -125,5 +130,10 @@ fun LandingPage(
         ThreadList(displayThreads.value)
       }
     }
+  }
+
+  // Run the predictor as soon as the screen is composed.
+  LaunchedEffect(key1 = Unit) {
+    spamDetectionSwitch()
   }
 }
