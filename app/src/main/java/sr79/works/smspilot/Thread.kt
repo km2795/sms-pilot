@@ -23,7 +23,7 @@ class Thread(
     this.updateThumbnailData(message)
 
     // Update the Spam count, during initiation of the Thread.
-    if (message.getSpamOrNot()) {
+    if (message.getSpamOrNot() == true) {
       this.hasSpam++
     }
   }
@@ -71,8 +71,7 @@ class Thread(
     this.address = message.getAddress()
     this.id = message.getId()
     this.updateThumbnailData(message)
-    val verdict = message.getSpamOrNot()
-    if (verdict) {
+    if (message.getSpamOrNot() == true) {
       this.hasSpam++
     }
   }

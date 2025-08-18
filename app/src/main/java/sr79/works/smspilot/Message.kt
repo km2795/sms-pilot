@@ -16,7 +16,7 @@ class Message (
   // 2 if the message is sent.
   // 1 if the message is received.
   private var type: Int = 1,
-  private var spamOrNot: Boolean = false
+  private var spamOrNot: Boolean? = null
 ) {
 
   /**
@@ -101,7 +101,7 @@ class Message (
    *
    * @return Boolean
    */
-  fun getSpamOrNot(): Boolean {
+  fun getSpamOrNot(): Boolean? {
     return this.spamOrNot
   }
 
