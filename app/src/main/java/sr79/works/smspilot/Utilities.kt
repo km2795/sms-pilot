@@ -17,6 +17,11 @@ import java.util.Locale
 import java.util.TimeZone
 
 
+/**
+ * A utility object providing various helper functions for common tasks
+ * such as serialization, deserialization, file I/O, date formatting,
+ * and string manipulation.
+ */
 object Utilities {
 
   private val MonthNames = arrayOf(
@@ -47,6 +52,28 @@ object Utilities {
       Json.decodeFromString<T>(value)
     } catch (e: Exception) {
       return null
+    }
+  }
+
+  /**
+   * Converts a string to a boolean.
+   *
+   * This function parses the input string and convert
+   * it to a boolean value. It ignores case and considers
+   * "true" as `true` and "false" as `false`. If the string
+   * does not match either of these values (case-insensitive),
+   * it returns `null`.
+   *
+   * @param value The string to convert.
+   * @return `true` if the string is "true" (case-insensitive),
+   *         `false` if the string is "false" (case-insensitive),
+   *         `null` otherwise.
+   */
+  inline fun stringToBoolean(value: String): Boolean? {
+    return when {
+      value.lowercase() == "false" -> false
+      value.lowercase() == "true" -> true
+      else -> null
     }
   }
 
