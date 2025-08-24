@@ -36,18 +36,4 @@ object ThreadListHandler {
       .sortedByDescending { it.getShowDate() }
       .toMutableList()
   }
-
-  /**
-   * Clear the lists.
-   */
-  fun clearList(
-    threadMap: MutableMap<String, Thread>,
-    threadList: MutableList<Thread>
-  ) {
-    // Clear the thread list.
-    threadList.clear()
-
-    // Clear the thread map.
-    threadMap.clear()
-  }
 }
