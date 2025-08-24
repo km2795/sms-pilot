@@ -67,12 +67,16 @@ object Utilities {
    * @param value The string to convert.
    * @return `true` if the string is "true" (case-insensitive),
    *         `false` if the string is "false" (case-insensitive),
+   *         `true` if the string is "1"
+   *         `false` if the string is "0"
    *         `null` otherwise.
    */
   inline fun stringToBoolean(value: String): Boolean? {
     return when {
       value.lowercase() == "false" -> false
       value.lowercase() == "true" -> true
+      value.lowercase() == "1" -> true
+      value.lowercase() == "0" -> false
       else -> null
     }
   }
