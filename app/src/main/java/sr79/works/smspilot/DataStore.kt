@@ -39,7 +39,7 @@ class DataStore(context: Context): SQLiteOpenHelper(
           COLUMN_NAME_BODY + " TEXT," +
           COLUMN_NAME_DATE + " INTEGER," +
           COLUMN_NAME_TYPE + " INTEGER," +
-          COLUMN_NAME_SPAM + " INTEGER" +
+          COLUMN_NAME_SPAM + " TEXT" +
           ")"
 
   /**
@@ -78,7 +78,7 @@ class DataStore(context: Context): SQLiteOpenHelper(
     }
     val db = this.writableDatabase
     return try {
-      val rowId = db?.insert(TABLE_NAME, null, entryMap)
+      val rowId = db.insert(TABLE_NAME, null, entryMap)
 
       // Check to see, if the message got inserted.
       rowId != -1L
@@ -209,9 +209,17 @@ class DataStore(context: Context): SQLiteOpenHelper(
         val address = getString(getColumnIndexOrThrow(COLUMN_NAME_ADDRESS))
         val date = getLong(getColumnIndexOrThrow(COLUMN_NAME_DATE))
         val type = getInt(getColumnIndexOrThrow(COLUMN_NAME_TYPE))
-        val spam: Boolean = !(getInt(getColumnIndexOrThrow(COLUMN_NAME_SPAM)) == 0)
+        val spam: Boolean? =
+          Utilities.stringToBoolean(getInt(getColumnIndexOrThrow(COLUMN_NAME_SPAM)).toString())
         messageList.add(
-          Message(id = id, body = body, address = address, date = date, type = type, spamOrNot = spam)
+          Message(
+            id = id,
+            body = body,
+            address = address,
+            date = date,
+            type = type,
+            spamOrNot = spam
+          )
         )
       }
     }
