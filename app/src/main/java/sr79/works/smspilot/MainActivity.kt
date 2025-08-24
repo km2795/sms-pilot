@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
     // ViewModel for Landing Page.
     val landingPageViewModel by viewModels<LandingPageViewModel> {
-      LandingPageViewModel.LandingPageViewModelFactory(application, dataStore, detector)
+      LandingPageViewModel.LandingPageViewModelFactory(application, dataStore)
     }
 
 
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
           updatePermissionButtonVisibility = { show -> landingPageViewModel.updateShowPermissionButton(show) },
           landingPageViewModel,
           spamDetectionSwitch = {
-            landingPageViewModel.runPredictor()
+            landingPageViewModel.runPredictor(null)
           },
           modifier = Modifier.padding(innerPadding)
         )

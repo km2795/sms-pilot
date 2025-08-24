@@ -55,8 +55,7 @@ fun LandingPage(
   landingPageViewModel: LandingPageViewModel = viewModel(
     factory = LandingPageViewModel.LandingPageViewModelFactory(
       application = LocalContext.current.applicationContext as Application,
-      dataStore = dataStore,
-      detector = detector
+      dataStore = dataStore
     )
   ),
   spamDetectionSwitch: suspend() -> Unit,
@@ -93,7 +92,7 @@ fun LandingPage(
           onShowExtraTopActionMenu = { showExtraTopActionMenu = it },
           updatePermissionButtonVisibility,
           runPredictor = {
-            landingPageViewModel.runPredictor()
+            landingPageViewModel.runPredictor(null)
           },
           modifier = Modifier.background(Color.White)
         )

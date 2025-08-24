@@ -16,13 +16,47 @@ object AppHandler {
   }
 
   /**
+   * Run a pre-fetch from the content provider
+   * to check the size for comparison before
+   * making complete query for the messages.
+   */
+  fun getMessageListSize(contentResolver: ContentResolver): Int {
+    var messageListSize = 0
+
+    // URIs to query.
+    var uriList = listOf(
+      Telephony.Sms.Inbox.CONTENT_URI,
+      Telephony.Sms.Sent.CONTENT_URI
+    )
+
+    // Query.
+    uriList.forEach() { uri ->
+      contentResolver.query(
+        uri,
+        arrayOf("COUNT(*) AS count"),
+        null,
+        null,
+        null
+      )?.use { cursor ->
+        if (cursor.moveToFirst()) {
+          val countIndex = cursor.getColumnIndex("count")
+          if (countIndex != -1) {
+            messageListSize += cursor.getInt(countIndex)
+          }
+        }
+      }
+    }
+
+    return messageListSize
+  }
+
+  /**
    * Returns the list of all the SMSs in the inbox ('inbox', 'sent').
    *
    * @param contentResolver Content resolver.
    * @return List of messages.
    */
   fun getMessageList(
-    dataStore: DataStore,
     contentResolver: ContentResolver
   ): List<Message> {
 
@@ -72,11 +106,10 @@ object AppHandler {
                 address = address,
                 body = body,
                 date = date,
-                type = type
+                type = type,
+                spamOrNot = null
               )
 
-              // Store the message in the database.
-              dataStore.storeMessage(message)
               // Add the message.
               messageList.add(message)
             }
@@ -93,11 +126,10 @@ object AppHandler {
    * Each message is put into its respective Thread.
    *
    * @param messageList List<Message>
-   * @param contentResolver Content resolver.
    * @return List of messages.
    */
   fun getThreadList(
-    messageList: MutableList<Message>
+    messageList: List<Message>
   ): List<Thread> {
 
     val threadMap: MutableMap<String, Thread> = mutableMapOf()
