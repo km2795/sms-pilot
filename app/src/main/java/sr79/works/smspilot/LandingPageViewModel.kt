@@ -124,6 +124,7 @@ class LandingPageViewModel(
       true,
       messageObserver
     )
+
     // Where the App starts it's functionality.
     load()
   }
@@ -206,10 +207,8 @@ class LandingPageViewModel(
         _showPermissionButton.value = true
         clearSmsMessages()
       } else if (permission) {
-
         // Load the Threads.
         _showPermissionButton.value = false
-        loadMessageIndex()
         loadThreads()
       } else {
 
@@ -219,8 +218,17 @@ class LandingPageViewModel(
     }
   }
 
+  /**
+   * Checks the stored SMS read permission status.
+   *
+   * Retrieves the SMS read permission status that was previously
+   * stored in the [DataStore].
+   *
+   * @return `true` if the permission was previously granted and stored as such,
+   *         `false` otherwise (including if the permission status has not yet
+   *         been stored).
+   */
   private fun checkPermission(): Boolean {
-    // Check the permission (if stored already).
     return dataStore.getSmsReadPermission(application)
   }
 
@@ -280,6 +288,10 @@ class LandingPageViewModel(
    */
   private fun loadThreads() {
     viewModelScope.launch(Dispatchers.Default) {
+      /* When there is no message in the DataStore. */
+      if (loadMessageIndex() < 1) {
+        getUniqueMessages()
+      }
       _displayThreads.value = AppHandler.getDisplayThreads(
         AppHandler.getThreadList(
           messageIndex.values.toList() as List<Message>
