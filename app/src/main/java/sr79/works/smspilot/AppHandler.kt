@@ -11,14 +11,24 @@ import java.nio.MappedByteBuffer
  */
 object AppHandler {
 
+  /**
+   * Sets up the spam detector model.
+   *
+   * @param activity The current activity.
+   * @return MappedByteBuffer containing the loaded model, or null if loading failed.
+   */
   fun setupDetector(activity: Activity): MappedByteBuffer? {
     return loadDetector(activity, "sms_spam_detector_model.tflite")
   }
 
   /**
-   * Run a pre-fetch from the content provider
-   * to check the size for comparison before
-   * making complete query for the messages.
+   * Retrieves the total number of messages in the inbox and sent folders.
+   *
+   * This function performs a lightweight query to the content provider to get the count
+   * of messages.
+   *
+   * @param contentResolver The [ContentResolver] to use for querying the SMS content provider.
+   * @return The total number of messages in the inbox and sent folders.
    */
   fun getMessageListSize(contentResolver: ContentResolver): Int {
     var messageListSize = 0
@@ -51,10 +61,25 @@ object AppHandler {
   }
 
   /**
-   * Returns the list of all the SMSs in the inbox ('inbox', 'sent').
+   * Retrieves a list of all SMS messages from the device's inbox and sent folders.
    *
-   * @param contentResolver Content resolver.
-   * @return List of messages.
+   * This function queries the Android `Telephony.Sms` content provider to fetch
+   * messages from both the inbox (`Telephony.Sms.Inbox.CONTENT_URI`) and sent
+   * (`Telephony.Sms.Sent.CONTENT_URI`) folders.
+   *
+   * For each message, it extracts the following details:
+   * - `_ID`: The unique ID of the message.
+   * - `ADDRESS`: The phone number of the sender/recipient.
+   * - `BODY`: The content of the message.
+   * - `DATE`: The timestamp of the message (in milliseconds).
+   * - `TYPE`: The type of the message (e.g., inbox, sent).
+   *
+   * Messages where the `ADDRESS` or `BODY` is null are excluded from the result.
+   * The returned list of messages is sorted by date in descending order (newest first).
+   *
+   * @param contentResolver The `ContentResolver` instance used to query the content provider.
+   * @return A `List` of `Message` objects, each representing an SMS message.
+   *         Returns an empty list if no messages are found or if an error occurs.
    */
   fun getMessageList(
     contentResolver: ContentResolver
@@ -122,11 +147,16 @@ object AppHandler {
   }
 
   /**
-   * Returns the list of all the Threads.
-   * Each message is put into its respective Thread.
+   * Returns a list of all threads, where
+   * each message is grouped into its respective thread.
    *
-   * @param messageList List<Message>
-   * @return List of messages.
+   * This function takes a list of messages and organizes
+   * them into threads based on their conversation context.
+   * It utilizes a `ThreadListHandler` to manage the grouping
+   * logic.
+   *
+   * @param messageList The list of messages to be organized into threads.
+   * @return A list of `Thread` objects, each representing a distinct conversation thread.
    */
   fun getThreadList(
     messageList: List<Message>
@@ -141,6 +171,14 @@ object AppHandler {
     return ThreadListHandler.getThreadList(threadMap)
   }
 
+  /**
+   * Converts a list of [Thread] objects to a list of [DisplayThread] objects.
+   * [DisplayThread] objects are used for UI representation and contain additional
+   * information like placeholders and formatted dates.
+   *
+   * @param threadList The list of [Thread] objects to be converted.
+   * @return A list of [DisplayThread] objects ready for display.
+   */
   fun getDisplayThreads(
     threadList: List<Thread>
   ): List<DisplayThread> {

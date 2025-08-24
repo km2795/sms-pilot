@@ -23,6 +23,29 @@ import kotlinx.coroutines.launch
 import sr79.works.smspilot.composables.DisplayThread
 import java.net.URL
 
+/**
+ * ViewModel for the Landing Page of the SMS Pilot application.
+ *
+ * This ViewModel is responsible for managing the data related to SMS messages
+ * and their display in the UI. It handles permission requests for reading SMS,
+ * loading messages from the device and DataStore, organizing messages into threads,
+ * and running spam prediction on messages.
+ *
+ * It uses a [DataStore] to persist SMS messages and permission status.
+ * It observes changes in the SMS content provider to refresh the message list
+ * automatically.
+ *
+ * The ViewModel exposes StateFlows for UI elements to observe, such as the list
+ * of displayable SMS threads ([displayThreads]) and the visibility of the permission
+ * button ([showPermissionButton]).
+ *
+ * @property application The application context, used for accessing system services
+ *                       like ContentResolver and checking permissions.
+ * @property dataStore An instance of [DataStore] used for storing and retrieving
+ *                     SMS messages and permission status persistently.
+ * @constructor Creates an instance of LandingPageViewModel with the provided
+ *              application context and DataStore.
+ */
 class LandingPageViewModel(
   private val application: Application,
   private val dataStore: DataStore
