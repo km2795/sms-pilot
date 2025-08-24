@@ -163,7 +163,6 @@ object Utilities {
    *             - dd MMM yyyy otherwise.
    * @return The formatted date string.
    */
-
   fun modifyDateField(dateStr: String?, full: Boolean): String {
     val currentDateTime = Calendar.getInstance()
 
