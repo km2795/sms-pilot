@@ -14,7 +14,7 @@ import sr79.works.smspilot.composables.LandingPage
 import java.nio.MappedByteBuffer
 
 
-var API_URL = ""
+var API_URL = "https://sasha-d7iq.onrender.com/predict"
 
 // Landing Page.
 class MainActivity : ComponentActivity() {
