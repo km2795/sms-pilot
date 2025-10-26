@@ -15,7 +15,7 @@ import java.net.URL
  * @param apiUrl API URL for the spam detection service.
  * @return True if the message is considered spam, false otherwise, or null on error.
  */
-suspend fun predictorApi(data: String, apiUrl: URL): Boolean? {
+suspend fun predictorApi(payload: JSONObject, apiUrl: URL): JSONObject? {
   // Use Dispatchers.IO for network operations
   return withContext(Dispatchers.IO) {
     try {
@@ -29,10 +29,6 @@ suspend fun predictorApi(data: String, apiUrl: URL): Boolean? {
       urlConnection.doOutput = true
       urlConnection.doInput = true
 
-      // Create JSON payload
-      val payload = JSONObject()
-      payload.put("message", data)
-
       // Send the request
       val outputStreamWriter = OutputStreamWriter(urlConnection.outputStream)
       outputStreamWriter.write(payload.toString())
@@ -45,11 +41,9 @@ suspend fun predictorApi(data: String, apiUrl: URL): Boolean? {
         val response = urlConnection.inputStream.bufferedReader().use { it.readText() }
         val jsonResponse = JSONObject(response)
 
+        // Return the Payload received.
         if (jsonResponse.has("verdict")) {
-          var verdict = jsonResponse.get("verdict")
-          if (verdict == "Spam") true
-          else if (verdict == "Not Spam") false
-          else null
+          jsonResponse.getJSONObject("verdict").getJSONObject("messages")
         } else {
           // Handle cases where the expected field is missing
           System.err.println("API Error: 'verdict' field missing in response: $response")

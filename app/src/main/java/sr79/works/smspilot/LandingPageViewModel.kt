@@ -15,11 +15,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import sr79.works.smspilot.composables.DisplayThread
 import java.net.URL
 
@@ -209,6 +209,9 @@ class LandingPageViewModel(
       } else if (permission) {
         // Load the Threads.
         _showPermissionButton.value = false
+
+        // During initial load.
+        getUniqueMessages()
         loadThreads()
       } else {
 
@@ -294,7 +297,7 @@ class LandingPageViewModel(
       }
       _displayThreads.value = AppHandler.getDisplayThreads(
         AppHandler.getThreadList(
-          messageIndex.values.toList() as List<Message>
+          messageIndex.values.toList()
         )
       )
     }
@@ -351,24 +354,42 @@ class LandingPageViewModel(
         val apiUrl = URL(API_URL)
 
         var messageList = messages ?: messageIndex.values
+
+        // Payload to be sent to the API
+        var payload = JSONObject()
+
+        /* Payload Structure.
+         * {
+         *  size: #,
+         *  messages: {
+         *    <id>: <message>
+         *  }
+         * }
+         */
+
+        var payloadSize = 0
+        // Form a dictionary of multiple key-value pairs { <messageId>: <message> }
+        var messagesJsonObject = JSONObject()
         for (message in messageList) {
-          // Delay.
-          delay(5L)
-
-          // Check if the spam status is set or not.
           if (message.getSpamOrNot() == null) {
-            // Call predictor API for each those messages,
-            // where spam status is null (have not been
-            // identified before).
-            var verdict = predictorApi(message.getBody(), apiUrl)
-            if (verdict != null) {
-              // Update the message object.
-              message.setSpamOrNot(verdict)
-
-              // Update the message in store.
-              dataStore.updateMessage(message)
-            }
+            messagesJsonObject.put(message.getId().toString(), message.getBody())
+            payloadSize++
           }
+        }
+        payload.put("size", payloadSize)
+        payload.put("messages", messagesJsonObject)
+
+        // Send the payload for verdict.
+        var verdictPayload = predictorApi(payload, apiUrl)
+
+        for (message in messageList) {
+          var verdict = verdictPayload?.get(message.getId().toString()) == "Spam"
+
+          // Update the message object.
+          message.setSpamOrNot(verdict)
+
+          // Update the message in store.
+          dataStore.updateMessage(message)
         }
 
         // Update the UI.
