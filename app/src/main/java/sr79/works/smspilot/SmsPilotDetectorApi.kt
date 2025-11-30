@@ -61,7 +61,7 @@ suspend fun predictorApi(payload: JSONObject, apiUrl: URL): JSONObject? {
         null
       }
     } catch (e: Exception) {
-      e.printStackTrace()
+      throw e;
       null
     }
   }
