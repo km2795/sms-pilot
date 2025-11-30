@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
-import sr79.works.smspilot.API_URL
+import sr79.works.smspilot.PREDICTOR_API_URL
 import sr79.works.smspilot.DataStore
 
 @Composable
@@ -93,7 +93,7 @@ fun TopBarActions(
       },
       currentUrl = "http://127.0.0.1:5000/predict",
       onSave = { newUrl ->
-        API_URL = newUrl
+        PREDICTOR_API_URL = newUrl
         showUpdateApiUrlDialog = false
 
         // To kick start the predictor.
@@ -106,7 +106,7 @@ fun TopBarActions(
           }
         }
 
-        Log.d("showUpdateApiUrlDialog", "Spam Detector API URL Updated: " + API_URL)
+        Log.d("showUpdateApiUrlDialog", "Spam Detector API URL Updated: " + PREDICTOR_API_URL)
       }
     )
   }
