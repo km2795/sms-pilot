@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -147,7 +149,7 @@ class LandingPageViewModel(
       ) == PackageManager.PERMISSION_GRANTED -> {
         dataStore.updateSmsReadPermission(context, true)
         _showPermissionButton.value = false
-        loadThreads()
+        loadThreads(true)
       }
       else -> {
         // Update DataStore to reflect that permission is not (yet) granted
@@ -173,7 +175,7 @@ class LandingPageViewModel(
     dataStore.updateSmsReadPermission(context, isGranted)
     _showPermissionButton.value = !isGranted
     if (isGranted) {
-      loadThreads()
+      loadThreads(true)
     } else {
       clearSmsMessages() // Or handle denial appropriately
     }
@@ -210,9 +212,7 @@ class LandingPageViewModel(
         // Load the Threads.
         _showPermissionButton.value = false
 
-        // During initial load.
-        getUniqueMessages()
-        loadThreads()
+        loadThreads(true)
       } else {
 
         // In case, permission was stored.
@@ -289,7 +289,7 @@ class LandingPageViewModel(
    * `DisplayThread` objects is then assigned to `_displayThreads`,
    * which triggers an update in the UI observing this StateFlow.
    */
-  private fun loadThreads() {
+  private fun loadThreads(initial: Boolean) {
     viewModelScope.launch(Dispatchers.Default) {
       /* When there is no message in the DataStore. */
       if (loadMessageIndex() < 1) {
@@ -300,6 +300,9 @@ class LandingPageViewModel(
           messageIndex.values.toList()
         )
       )
+      if (initial) {
+        runPredictor(messageIndex.values.toList())
+      }
     }
   }
 
@@ -319,7 +322,7 @@ class LandingPageViewModel(
       // Run the predictor, only if there are new messages.
       if (uniqueMessages.isNotEmpty())
         runPredictor(uniqueMessages)
-      loadThreads()
+      loadThreads(false)
     }
   }
 
@@ -339,61 +342,82 @@ class LandingPageViewModel(
    * it calls the `predictorApi` to get a spam verdict. If a verdict is received,
    * the message's spam status is updated, and the message is updated in the DataStore.
    *
+   * Payload Structure.
+   * {
+   *  size: #,
+   *  messages: {
+   *    <id>: <message>
+   *  }
+   * }
+   *
    * If the `API_URL` is empty, this function does nothing.
    * If the `messages` parameter is null, it defaults to processing all messages
    * currently in the `messageIndex`.
    *
-   * @param messages A list of [Message] objects to be processed. If null, all messages
+   * @param messageList A list of [Message] objects to be processed. If null, all messages
    *                 in `messageIndex` will be processed.
    */
-  fun runPredictor(messages: List<Message>?) {
-    viewModelScope.launch {
-      if (API_URL != "") {
+  suspend fun runPredictor(messageList: List<Message>?) {
+    if (messageList.isNullOrEmpty()) return;
 
-        // Spam API URL.
-        val apiUrl = URL(API_URL)
+    // Designate either of the two available Predictor API service.
+    val apiUrl = if (PREDICTOR_API_URL.isNotEmpty()) {
+      PREDICTOR_API_URL
+    } else {
+      SECONDARY_PREDICTOR_API_URL
+    }
 
-        var messageList = messages ?: messageIndex.values
+    if (apiUrl.isEmpty()) {
+      Log.w("Predictor API URL", "No predictor API URL configured.")
+      return;
+    }
 
-        // Payload to be sent to the API
-        var payload = JSONObject()
+    var isPredictorApiAvailable = false
+    while (!isPredictorApiAvailable) {
+      try {
+        if (apiUrl.isNotEmpty()) {
 
-        /* Payload Structure.
-         * {
-         *  size: #,
-         *  messages: {
-         *    <id>: <message>
-         *  }
-         * }
-         */
+          var payload = JSONObject()
+          var payloadSize = 0
+          var messagesJsonObject = JSONObject()
 
-        var payloadSize = 0
-        // Form a dictionary of multiple key-value pairs { <messageId>: <message> }
-        var messagesJsonObject = JSONObject()
-        for (message in messageList) {
-          if (message.getSpamOrNot() == null) {
-            messagesJsonObject.put(message.getId().toString(), message.getBody())
-            payloadSize++
+          for (message in messageList) {
+            // If the message is not already checked. Push it into the list.
+            if (message.getSpamOrNot() == null) {
+              messagesJsonObject.put(message.getId().toString(), message.getBody())
+              payloadSize++
+            }
           }
+          payload.put("size", payloadSize)
+          payload.put("messages", messagesJsonObject)
+
+          // Send the payload for verdict.
+          var verdictPayload = predictorApi(payload, URL(apiUrl))
+          if (verdictPayload != null) {
+            for (message in messageList) {
+              var tempVerdict = verdictPayload.get(message.getId().toString())
+
+              // Only if the verdict has been received, should the spam status be updated,
+              // otherwise keep it null.
+              if (tempVerdict == "Spam") {
+                message.setSpamOrNot(true)
+              } else if (tempVerdict == "Not Spam") {
+                message.setSpamOrNot(false);
+              }
+
+              // Update the message in store.
+              dataStore.updateMessage(message)
+            }
+          }
+
+          // Update the UI.
+          loadThreads(false)
+          isPredictorApiAvailable = true
         }
-        payload.put("size", payloadSize)
-        payload.put("messages", messagesJsonObject)
-
-        // Send the payload for verdict.
-        var verdictPayload = predictorApi(payload, apiUrl)
-
-        for (message in messageList) {
-          var verdict = verdictPayload?.get(message.getId().toString()) == "Spam"
-
-          // Update the message object.
-          message.setSpamOrNot(verdict)
-
-          // Update the message in store.
-          dataStore.updateMessage(message)
-        }
-
-        // Update the UI.
-        loadThreads()
+      } catch (e: Exception) {
+        Log.e("Predictor API Service", "Prediction Service Unavailable. Retrying in 10 seconds.", e)
+        isPredictorApiAvailable = false
+        delay(10000)
       }
     }
   }
