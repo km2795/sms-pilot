@@ -43,7 +43,12 @@ suspend fun predictorApi(payload: JSONObject, apiUrl: URL): JSONObject? {
 
         // Return the Payload received.
         if (jsonResponse.has("verdict")) {
-          jsonResponse.getJSONObject("verdict").getJSONObject("messages")
+          var response = jsonResponse.getJSONObject("verdict")
+          if (response.has("messages")) {
+            response.getJSONObject("messages")
+          } else {
+            null
+          }
         } else {
           // Handle cases where the expected field is missing
           System.err.println("API Error: 'verdict' field missing in response: $response")
